@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+  
+        
+{% block content %}
+    <div class="container-flex">
+      <h1 class="display-4 center_color" style="margin-top: 40px;"> Festival table </h1>
+        <table class="admin_user_table">
+          <thead>
+              <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Genre</th>
+                  <th>Date Start</th>
+                  <th>Date End</th>
+                  <th>Location</th>
+                  <th>Price</th>
+                  <th>Max capacity</th>
+                  <th>Remaining capacity</th>
+                  <th>Tickets F</th>
+                  <th>Stages</th>
+                  <th>Delete Festival</th>
+              </tr>
+              </thead>    
+              <tbody>
+               {% for festival in festivals %}    
+                      <tr>
+                          <td>{{festival.id}}</td>
+                          <td>{{festival.name}}</td>
+                          <td>{{festival.description}}</td>
+                          <td>{{festival.genre}}</td>
+                          <td>{{festival.date_start}}</td>
+                          <td>{{festival.date_end}}</td>
+                          <td>{{festival.location}}</td>
+                          <td>{{festival.price}}</td>
+                          <td>{{festival.max_capacity}}</td>
+                          <td>{{festival.remaining_capacity}}</td>
+                          <td>{{festival.tickets_F}}</td>
+                          <td>{% for stg in festival.stages %}
+                              {{stg.name + ", "}}
+                            {% endfor %}
+                          </td>
+                          <td><a href="{{url_for('remove_festival', id=festival.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                      </tr>
+                  {% endfor %}
+                </tbody>
+            </table>
+            <td><a href="{{url_for('add_festival')}}" class="btn btn-primary center_but" style="background-color: rgb(4, 161, 4);">Add festival</a></td>
+
+
+            <h1 class="display-4 center_color" style="margin-top: 40px;"> Stage table </h1>
+            <table class="admin_user_table">
+              <thead>
+                  <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Festival Name</th>
+                      <th>Performers</th>
+                      <th>Delete Stage</th>
+                  </tr>
+                  </thead>    
+                  <tbody>
+                   {% for stage in stages %}    
+                          <tr>
+                              <td>{{stage.id}}</td>
+                              <td>{{stage.name}}</td>
+                              <td>{{stage.festival.name}}</td>
+                              <td>
+                                {% for performer in stage.performers %}    
+                                {{performer.name + ", "}}
+                                {% endfor %}
+                              </td>
+                              <td><a href="{{url_for('remove_stage', id=stage.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                          </tr>
+                      {% endfor %}
+                    </tbody>
+                </table>
+                <td><a href="{{url_for('add_stage')}}" class="btn btn-primary center_but" style="background-color: rgb(4, 161, 4);">Add stage</a></td>
+
+
+            <h1 class="display-4 center_color" style="margin-top: 40px;"> Interpret table </h1>
+            <table class="admin_user_table">
+              <thead>
+                  <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Members</th>
+                      <th>Rating</th>
+                      <th>Genre</th>
+                      <th>Stages</th>
+                      <th>Delete Interpret</th>
+                  </tr>
+                  </thead>    
+                  <tbody>
+                   {% for interpret in interprets %}    
+                          <tr>
+                              <td>{{interpret.id}}</td>
+                              <td>{{interpret.name}}</td>
+                              <td>{{interpret.members}}</td>
+                              <td>{{interpret.rating}}</td>
+                              <td>{{interpret.genre}}</td>
+                              <td>
+                                {% for stg in interpret.stages %}    
+                                {{stg.name + ", "}}
+                                {% endfor %}
+                              </td>
+                              <td><a href="{{url_for('remove_interpret', id=interpret.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                          </tr>
+                      {% endfor %}
+                    </tbody>
+                </table>
+                <td><a href="{{url_for('add_interpret')}}" class="btn btn-primary center_but" style="background-color: rgb(4, 161, 4);">Add interpret</a></td>
+        </div>
+        {% endblock %}

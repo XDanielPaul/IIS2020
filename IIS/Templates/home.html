@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{%block content%}
+
+{% for festival in festivals %} 
+<div class="container border-10 rounded border border-dark" style="background-color: silver; height: 50vh; margin-top: 20px;">
+    <div class="row">
+        <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 50vh; font-size:18px; font-family: monospace;">
+            <div style="margin-top: 10px;">
+                <p class="font-weight-bold text-uppercase">Festival: {{festival.name}}</p>
+                <p>Description: {{festival.description}}</p>
+                <p>Genre: {{festival.genre}}</p>
+                <p>Location: {{festival.location}}</p>
+                <p>Price: {{festival.price}} €</p>
+                <p>From: {{festival.date_start}} To: {{festival.date_end}} </p>
+                <p>Tickets left: {{festival.remaining_capacity}}/{{festival.max_capacity}}</p>
+                <button>Buy tickets</button>
+            </div>
+        </div>
+        <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 50vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
+            <div style="margin-top: 10px;">
+                {% for stage in festival.stages %} 
+                    <p class="font-weight-bold text-uppercase">Stage: {{stage.name}}</p>
+                    <p class="font-weight-bold">Interprets:</p>
+                    {% for performer in stage.performers %} 
+                        <p>{{performer.name}}</p>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{%endblock%}

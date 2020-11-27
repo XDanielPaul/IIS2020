@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{%block content%}
+<div class="container" style="color:aliceblue; margin-top: 50px;">
+  <a href="{{url_for('organizer')}}" class="btn btn-primary" style="background-color: red;">Back</a>
+                
+    <form method="post" action="">
+      <label  class="col-sm-2 col-form-label">Name</label>    
+      <input type="text" class="form-control emph" name="name" value ="{{name if name}}" placeholder="Festival name..."/>
+      <label  class="col-sm-2 col-form-label">Description</label>    
+      <textarea type="text" class="form-control" name="description" value ="{{description if description}}" placeholder="Something about festival..."></textarea>
+      <label  class="col-sm-2 col-form-label">Genre</label>
+      <select name="genre" class="form-control" id="genre">
+          <option value="blues">Blues</option>
+          <option value="country">Country</option>
+          <option value="dubstep">Dubstep</option>
+          <option value="electro">Electro</option>
+          <option value="folk">Folk</option>
+          <option value="jazz">Jazz</option>
+          <option value="metal">Metal</option>
+          <option value="pop">Pop</option>
+          <option value="rap">Rap</option>
+          <option value="r&b and soul">R&B and soul</option>
+          <option value="rock">Rock</option>
+          <option value="techno">Techno</option>
+      </select>
+      <label  class="col-sm-2 col-form-label">Date start</label>
+      <input type="date" class="form-control  emph" name="date_start" value ="{{date_start if date_start}}" min="2020-12-02" max=2025-12-31/>
+      <label  class="col-sm-2 col-form-label">Date end</label>
+      <input type="date" class="form-control  emph" name="date_end" value ="{{date_end if date_end}}" min="2020-12-02" max=2025-12-31/>
+      <label  class="col-sm-2 col-form-label">Location</label>
+      <input type="text" class="form-control  emph" name="location" value ="{{location if location}}" placeholder="Festival location..."/>
+      <label  class="col-sm-2 col-form-label">Price</label>
+      <input type="text" class="form-control  emph" name="price" value ="{{price if price}}" placeholder="€"/>
+      <label  class="col-sm-2 col-form-label">Max capacity</label>
+      <input type="text" class="form-control  emph" name="max_capacity" value ="{{max_capacity if max_capacity}}"/>
+      <button type="submit" class="border border-secondary btn btn-secondary" style="margin-top: 10px;">Add festival</button>
+    </form>
+  </div>
+{%endblock%}

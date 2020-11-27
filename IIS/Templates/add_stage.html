@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{%block content%}
+<div class="container" style="color:aliceblue; margin-top: 50px;">
+  <a href="{{url_for('organizer')}}" class="btn btn-primary" style="background-color: red;">Back</a>
+                
+    <form method="post" action="">
+      <label  class="col-sm-2 col-form-label">Name</label>    
+      <input type="text" class="form-control emph" name="name" value ="{{name if name}}" placeholder="Stage name..."/>
+      <label  class="col-sm-2 col-form-label">Festival</label>    
+      <select name="festival" class="form-control" id="festival">
+        {% for festival in festivals %}
+        <option value="{{festival.id}}">{{festival.name}}</option>
+        {% endfor %}
+    </select>
+      <button type="submit" class="border border-secondary btn btn-secondary" style="margin-top: 10px;">Add stage</button>
+    </form>
+  </div>
+{%endblock%}

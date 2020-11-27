@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{%block content%}
+<div class="container" style="color:aliceblue; margin-top: 50px;">
+  <a href="{{url_for('organizer')}}" class="btn btn-primary" style="background-color: red;">Back</a>
+                
+    <form method="post" action="">
+      <label  class="col-sm-2 col-form-label">Name</label>    
+      <input type="text" class="form-control emph" name="name" value ="{{name if name}}" placeholder="Interpret name..."/>
+      <label  class="col-sm-2 col-form-label">Members</label>    
+      <textarea type="text" class="form-control" name="members" value ="{{members if members}}" placeholder="Members of interpret"></textarea>
+      <label  class="col-sm-2 col-form-label">Rating</label>
+      <input type="text" class="form-control  emph" name="rating" value ="{{rating if rating}}" placeholder="Rating"/>
+      <label  class="col-sm-2 col-form-label">Genre</label>
+      <select name="genre" class="form-control" id="genre">
+          <option value="blues">Blues</option>
+          <option value="country">Country</option>
+          <option value="dubstep">Dubstep</option>
+          <option value="electro">Electro</option>
+          <option value="folk">Folk</option>
+          <option value="jazz">Jazz</option>
+          <option value="metal">Metal</option>
+          <option value="pop">Pop</option>
+          <option value="rap">Rap</option>
+          <option value="r&b and soul">R&B and soul</option>
+          <option value="rock">Rock</option>
+          <option value="techno">Techno</option>
+      </select>
+      <button type="submit" class="border border-secondary btn btn-secondary" style="margin-top: 10px;">Add interpret</button>
+    </form>
+  </div>
+{%endblock%}

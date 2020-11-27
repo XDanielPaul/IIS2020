@@ -1,44 +1,34 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <style>
-          body{
-     margin: 0;
-     padding: 0;
-     font-family: sans-serif;
-     background: #12365a;
-          }
- </style>
-    <meta charset="utf-8">
-    <title>Flask Tutorial</title>
-  </head>
-  <body>   
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="">IIS Festival</a>
-        </div>
-        <div id="navbar">
-            <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('home') }}">Home</a></li>
-            {% if not current_user.is_authenticated %}
-            <li><a href="{{ url_for('login') }}">Login</a></li>
-            <li><a href="{{ url_for('register') }}">Register</a></li>
-            {% endif %}
-            {% if current_user.is_authenticated %}
-            <li><a href="{{url_for('logout')}}">Logout</a></li>
-            {% endif %}
-            {% if current_user.priviliges == 1 %}
-            <li><a style="color: aliceblue;" href="{{url_for('admin')}}">Admin</a></li>
-            {% endif %}
-          </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
-      {% block content %}{% endblock %}
+{% extends "base.html" %}
+  
+{% block content %}
 
-    <h1 style="margin-top: 200px; margin-left: 600px; color:white">Admin Logged in.</h1>
-  </body>
-</html>
+    <h1 style= "margin-left:700px;  color:white">Admin Logged in.</h1>
+    
+    <table class="admin_user_table">
+      <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Login</th>
+            <th>Password</th>
+            <th>Privilige</th>
+            <th>Delete User</th>
+        </tr>
+        </thead>    
+        <tbody>
+         {% for user in users %}    
+                <tr>
+                    <td>{{user.id}}</td>
+                    <td>{{user.name}}</td>
+                    <td>{{user.surname}}</td>
+                    <td>{{user.login}}</td>
+                    <td>{{user.password}}</td>
+                    <td>{{user.priviliges}}</td>
+                    <td><a href="{{url_for('remove_user', id=user.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% endblock %}

@@ -1,0 +1,138 @@
+html {
+    min-height: 100%;
+    position: relative;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    background: #12365a;
+}
+
+.box {
+    width: 300px;
+    padding: 40px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #09213a;
+    text-align: center;
+    border-radius: 20px;
+}
+
+.box h1 {
+    color: white;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgb(255, 255, 255);
+    text-shadow: 2px 2px rgb(150, 150, 150);
+    font-family: Roboto;
+    font-weight: 500;
+}
+
+.box input[type="text"],
+.box input[type="password"] {
+    border: 0;
+    background: none;
+    display: block;
+    margin: 20px auto;
+    text-align: center;
+    border: 1.5px solid #3498db;
+    padding: 14px 10px;
+    width: 190px;
+    outline: none;
+    border-radius: 24px;
+    color: whitesmoke;
+    transition: 0.35s;
+}
+
+.box input[type="text"]:focus,
+.box input[type="password"]:focus {
+    width: 230px;
+    border-color: #f39c12;
+}
+
+.box button {
+    order: 0;
+    background: none;
+    display: block;
+    margin: 20px auto;
+    text-align: center;
+    padding: 14px 40px;
+    outline: none;
+    border-radius: 24px;
+    color: rgb(196, 190, 190);
+    transition: 0.35s;
+    cursor: pointer;
+}
+
+.red-button {
+    border: 1.5px solid #d60a0a;
+}
+
+.green-button {
+    border: 1.5px solid #2ecc71;
+}
+
+.red-button:hover {
+    background: #d60a0a;
+}
+
+.green-button:hover {
+    background: #2ecc71;
+}
+
+.admin_user_table th {
+    border: 1px solid black;
+    color: black;
+    text-align: center;
+    background-color: rgb(110, 108, 108);
+}
+
+.admin_user_table td {
+    width: 150px;
+    text-align: center;
+    border: 1px solid black;
+    padding: 5px;
+    color: black;
+    background-color: rgb(190, 188, 188);
+}
+
+.admin_user_table {
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.active_link {
+    color: aliceblue !important;
+}
+
+.emph:focus {
+    display: inline-block;
+    padding: 12px;
+    border: 3px solid #555;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+.center_color {
+    color: aliceblue;
+    text-align: center;
+}
+
+.center_but {
+    margin-top: 10px;
+    margin-left: 45%;
+    margin-right: 45%;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.border-10 {
+    border-style: solid !important;
+    border-color: #000000 !important;
+    border-width: 3px !important;
+}
