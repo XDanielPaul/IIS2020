@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash
-from commands import create_tables, destroy_tables
+from commands import create_tables, destroy_tables, restart_tables
 from extensions import db,login_manager
 from settings import *
+from datetime import timedelta
 
 #from models import *
 import pymysql
@@ -13,10 +14,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = "SECRET_KEY"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://cgewkxohwrzbqz:791eb1445e7861448b11c5f17bb7fc7b0041d97958e425c9dc577a002c2c05ee@ec2-3-220-98-137.compute-1.amazonaws.com:5432/d5m38slqf76vdr'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
+app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(minutes=5)
 db.init_app(app)
 login_manager.init_app(app)
 app.cli.add_command(create_tables)
 app.cli.add_command(destroy_tables)
+app.cli.add_command(restart_tables)
 
 from models import User,Festival,Reservation,Ticket,Stage,Interpret,perfs
 #fill_database()
@@ -27,6 +30,9 @@ login_manager.login_view = 'app.login'
 def load_user(user_id):
     return User.query.get(user_id)
 
+@login_manager.unauthorized_handler
+def unauthorized():
+    return redirect(url_for('home'))
 
 def invalid_priviliges_check(p):
     if(current_user.priviliges < p ):
@@ -35,17 +41,96 @@ def invalid_priviliges_check(p):
 def fill_database():
     db.session.add(User(name = "aN", surname = "aS", login = "admin", unhashed_password= "admin", priviliges = 3))
     db.session.add(User(name = "User's_Name", surname = "User's_Surname", login = "user", unhashed_password= "user", priviliges = 0))
-    db.session.add(Festival(name="Pohoda", description="Je to super festival",genre="rock",date_start="2020-12-03",date_end="2020-12-04",location="Trenčín",price="30",max_capacity="500",remaining_capacity="500"))
-    db.session.add(Interpret(name="Eminem",members="Eminem",rating="10",genre="rap"))
     db.session.commit()
+    f_pohoda = Festival(name="Pohoda", description="Je to super festival",genre="rock",date_start="2020-12-03",date_end="2020-12-04",location="Trenčín",price="30",max_capacity="500",remaining_capacity="500")
+    db.session.add(f_pohoda)
+    f_grape = Festival(name="Grape", description="Je to tiez super festival",genre="metal",date_start="2020-12-06",date_end="2020-12-09",location="Piešťany",price="25",max_capacity="1000",remaining_capacity="1000")
+    db.session.add(f_grape)
+    db.session.commit()
+    s_O2 = Stage(name="O2_stage", festival=f_pohoda)
+    db.session.add(s_O2)
+    s_Orange = Stage(name="Orange_stage", festival=f_pohoda)
+    db.session.add(s_Orange)
+    s_Levy = Stage(name="Levy_stage", festival=f_grape)
+    db.session.add(s_Levy)
+    eminem = Interpret(name="Eminem",members="Eminem",rating="10",genre="rap")
+    db.session.add(eminem)
+    abusus = Interpret(name="Abusus",members="Branko Jóbus",rating="10",genre="folk")
+    db.session.add(abusus)
+    elan = Interpret(name="Elán",members="Jožko Vajda",rating="6",genre="pop")
+    db.session.add(elan)
+    nohavica = Interpret(name="Jaromír Nohavica",members="Jaromír Nohavica",rating="10",genre="folk")
+    db.session.add(nohavica)
+    db.session.commit()
+    s_O2.performers.append(eminem)
+    s_O2.performers.append(elan)
+    s_Levy.performers.append(nohavica)
+    s_Levy.performers.append(elan)
+    s_Orange.performers.append(nohavica)
+    s_Orange.performers.append(abusus)
+    db.session.commit()
+
 ''' HOME '''
 
 @app.route("/")
 def home():
+    #fill_database()
     #print(perfs)
     festivals = Festival.query.all()
     stages = Stage.query.all()
     return render_template("home.html", isHome=True, current_user = current_user, festivals=festivals, stages=stages)
+
+''' TICKETS '''
+@app.route('/cashier')
+@login_required
+def cashier():
+    invalid_priviliges_check(1)
+    reservations = Reservation.query.all()
+    return render_template("cashier.html", reservations=reservations, isCashier=True)
+
+@app.route('/buy_tickets/<name>', methods=['GET','POST'])
+#Zatial login required
+@login_required
+def buy_tickets(name):
+    festival = Festival.query.filter_by(name=name).first()
+    if request.method == "POST":
+        num = int(request.form["num"])
+        # TODO Not enough capacity
+        if num > festival.remaining_capacity:
+            pass
+        reservation = Reservation(owner = current_user, paid=False)
+        db.session.add(reservation)
+        db.session.commit()
+        for _ in range(0,num):
+            ticket = Ticket(festival = festival, reservation = reservation)
+            db.session.add(ticket)
+
+        festival.remaining_capacity = festival.remaining_capacity - num
+        db.session.commit()
+        return redirect(url_for('reservations'))
+    return render_template("buy_tickets.html", festival = festival)
+
+@app.route('/remove_reservation/<id>')
+@login_required
+def remove_reservation(id):
+    invalid_priviliges_check(1)
+    reservation = Reservation.query.filter_by(id = int(id)).first()
+    reservation.tickets_R[0].festival.remaining_capacity += len(reservation.tickets_R)
+    for ticket in reservation.tickets_R:
+        db.session.delete(ticket)
+
+    db.session.delete(reservation)
+    db.session.commit()
+    return redirect(url_for('cashier'))
+
+
+@app.route('/reservations')
+#Zatial login required
+@login_required
+def reservations():
+    reservations = current_user.reservations
+    return render_template("reservations.html", reservations=reservations, isReservations=True)
+    
 
 
 ''' AUTHENTIFICATION '''
@@ -53,9 +138,6 @@ def home():
 @app.route('/register', methods=['GET','POST'])
 def register():
     if request.method == "POST":
-        # Login click -> Login page
-        if request.form.get("loginbutton"):
-            return redirect(url_for('login'))
         #Register -> Add to database -> Login page
         login = request.form["login"]
         password = request.form["password"]
@@ -74,10 +156,6 @@ def register():
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == "POST":
-        # Register click -> Register page
-        if request.form.get("regbutton"):
-            return redirect(url_for('register'))
-
         login = request.form["login"]
         password = request.form["password"]
         user = User.query.filter_by(login=login).first()
@@ -87,6 +165,7 @@ def login():
             error_message = "Wrong username or password"
         if not error_message:
             login_user(user)
+            session.permanent = True
             return redirect(url_for('home'))
         
     return render_template("login.html", isLogin= True)

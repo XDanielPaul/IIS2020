@@ -3,12 +3,13 @@
 
    <form id="form" class="box" method="post" action "">
       <h1>Create an account</h1>
+      <small style="color: orange;">Required fields are marked with *</small>
       <input type="text" name="name" value ="{{name if name}}" placeholder="First name"/>
       <input type="text" name="surname" value ="{{surname if surname}}" placeholder="Surname"/>
-      <input type="text" name="login" value ="{{login if login}}" placeholder="Login"/>
-      <input type="password" name="password" value ="{{password if password}}" placeholder="Password"/>
+      <input type="text" name="login" value ="{{login if login}}" placeholder="Login *" required/>
+      <input type="password" name="password" value ="{{password if password}}" placeholder="Password *" required/>
       <button class="green-button" type="submit">Register</button>
-      <button name="loginbutton" value="loginbutton" class="red-button" type="submit">Login</button>
-   </form>
+      <a class="out_form red-button" style="width: 130px; " href="{{url_for('login')}}" >Login</button>
+      </form>
 
 {%endblock%}

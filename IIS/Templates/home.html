@@ -14,7 +14,7 @@
                 <p>Price: {{festival.price}} €</p>
                 <p>From: {{festival.date_start}} To: {{festival.date_end}} </p>
                 <p>Tickets left: {{festival.remaining_capacity}}/{{festival.max_capacity}}</p>
-                <button>Buy tickets</button>
+                <a href="{{url_for('buy_tickets', name=festival.name)}}" class="btn btn-primary" style="background-color: rgb(4, 161, 4);">Buy tickets</a>
             </div>
         </div>
         <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 50vh; font-size:18px; font-family: monospace; overflow-y:scroll;">

@@ -4,11 +4,13 @@
 
     <form id="form" class="box"  method="post" action="">
         <h1>Login</h1>
-        <input type="text" name="login" value ="{{login if login}}" placeholder="Login"/>
-        <input type="password" name="password" value ="{{password if password}}" placeholder="Password"/>
+        <small style="color: orange;">Required fields are marked with *</small>
+        <input type="text" name="login" value ="{{login if login}}" placeholder="Login *" required/>
+        <input type="password" name="password" value ="{{password if password}}" placeholder="Password *" required/>
         <button class="green-button" type="submit" >Login</button>
-      <button class="red-button" value="regbutton" name="regbutton" type="submit" >Register</button>
+        <a class="out_form red-button" style="width: 150px; " href="{{url_for('register')}}" >Register</button>
     </form>
+
 
 
 {%endblock%}

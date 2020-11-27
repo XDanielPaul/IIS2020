@@ -1,5 +1,35 @@
 {% extends "base.html" %}
   
 {% block content %}
+<h1>Cashier</h1>
+
+<h1 class="display-4 center_color" style="margin-top: 40px;"> Stage table </h1>
+            <table class="admin_user_table">
+              <thead>
+                  <tr>
+                      <th>ID</th>
+                      <th>Paid</th>
+                      <th>User</th>
+                      <th>Tickets R</th>
+                      <th>Delete Reservation</th>
+                  </tr>
+                  </thead>    
+                  <tbody>
+                   {% for reservation in reservations %}    
+                          <tr>
+                              <td>{{reservation.id}}</td>
+                              <td>{{reservation.paid}}</td>
+                              <td>{{reservation.owner.login}}</td>
+                              <td>
+                                {% for ticket in reservation.tickets_R %}    
+                                {{ticket}}
+                                {% endfor %}
+                              </td>
+                              <td><a href="{{url_for('remove_reservation', id=reservation.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                          </tr>
+                      {% endfor %}
+                    </tbody>
+                </table>
+
 
 {% endblock %}

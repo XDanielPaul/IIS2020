@@ -13,3 +13,9 @@ def create_tables():
 @with_appcontext
 def destroy_tables():
     db.drop_all()
+
+@click.command(name='restart_tables')
+@with_appcontext
+def restart_tables():
+    db.drop_all()
+    db.create_all()

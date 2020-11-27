@@ -27,6 +27,7 @@ class User(UserMixin, db.Model):
     
 class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key = True)
+    paid = db.Column(db.Boolean)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     tickets_R = db.relationship('Ticket', backref='reservation')
 
@@ -50,6 +51,9 @@ class Festival(db.Model):
     remaining_capacity = db.Column(db.Integer)
     tickets_F = db.relationship('Ticket', backref='festival')
     stages = db.relationship('Stage', backref='festival')
+
+    def recalculate_remaining_capacity(self):
+        self.remaining_capacity = self.max_capacity-self.tickets_F.size()
 
 
 class Stage(db.Model):

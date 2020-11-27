@@ -67,6 +67,21 @@ body {
     cursor: pointer;
 }
 
+.out_form {
+    order: 0;
+    background: none;
+    display: block;
+    margin: 20px auto;
+    text-align: center;
+    padding: 14px 40px;
+    outline: none;
+    border-radius: 24px;
+    color: rgb(196, 190, 190);
+    transition: 0.35s;
+    cursor: pointer;
+    text-decoration: none;
+}
+
 .red-button {
     border: 1.5px solid #d60a0a;
 }

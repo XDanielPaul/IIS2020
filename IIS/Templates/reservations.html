@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{%block content%}
+<h1 style="color: aliceblue; margin-left: 5%; margin-top: 40px;">Reservations:</h1>
+{% for reservation in reservations %} 
+    <table class="admin_user_table" style="margin-left: 5%;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Paid</th>
+                <th>Tickets R</th>
+            </tr>
+            </thead>    
+            <tbody>
+                    <tr>
+                        <td>{{reservation.id}}</td>
+                        <td>{{reservation.paid}}</td>
+                        <td>
+                          {% for ticket in reservation.tickets_R %}    
+                          {{ticket}}
+                          {% endfor %}
+
+                        </td>
+                    </tr>
+              </tbody>
+          </table>
+{% endfor %}
+
+{%endblock%}
