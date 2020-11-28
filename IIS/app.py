@@ -161,6 +161,7 @@ def organizer():
 @login_required
 def add_festival():
     invalid_priviliges_check(2)
+    description = ""
 
     if request.method == "POST":
         if (request.form["name"] != ""):
@@ -180,7 +181,7 @@ def add_festival():
         if (request.form["max_capacity"] != ""):
             max_capacity = request.form["max_capacity"]
         
-        festival = Festival(name=name, description=description,genre=genre,date_start=date_start,date_end=date_end,location=location,price=price,max_capacity=max_capacity,remaining_capacity=max_capacity)
+        festival = Festival(name=name, description=description,genre=genre, date_start=date_start,date_end=date_end,location=location,price=price,max_capacity=max_capacity,remaining_capacity=max_capacity)
         db.session.add(festival)
         db.session.commit()
         return redirect(url_for('organizer'))
@@ -227,6 +228,7 @@ def remove_stage(id):
 @login_required
 def add_interpret():
     invalid_priviliges_check(2)
+    members = ""
 
     if request.method == "POST":
         if (request.form["name"] != ""):
