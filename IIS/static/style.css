@@ -151,3 +151,8 @@ body {
     border-color: #000000 !important;
     border-width: 3px !important;
 }
+
+.required:after{
+    content: " *";
+    color: white;
+}
