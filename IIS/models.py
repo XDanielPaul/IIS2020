@@ -27,12 +27,15 @@ class User(UserMixin, db.Model):
     
 class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    paid = db.Column(db.Boolean)
+    code = db.Column(db.String(8))
+    paid = db.Column(db.Integer)
+    approved = db.Column(db.Integer)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     tickets_R = db.relationship('Ticket', backref='reservation')
 
 class Ticket(db.Model):
     id = db.Column(db.Integer, primary_key = True)
+    code = db.Column(db.String(8))
     reservation_id = db.Column(db.Integer, db.ForeignKey('reservation.id'))
     festival_id = db.Column(db.Integer, db.ForeignKey('festival.id'))
 
@@ -42,6 +45,7 @@ class Festival(db.Model):
     name = db.Column(db.String(60), unique = True)
     description = db.Column(db.String(150))
     genre = db.Column(db.String(30))
+    paid_on_spot = db.Column(db.Integer)
     date_start = db.Column(db.String(10))
     date_end = db.Column(db.String(10))
     #Rozpis

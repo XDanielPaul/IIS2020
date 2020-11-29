@@ -5,6 +5,7 @@ from commands import create_tables, destroy_tables, restart_tables
 from extensions import db,login_manager
 from settings import *
 from datetime import timedelta
+import random, string
 
 #from models import *
 import pymysql
@@ -20,6 +21,24 @@ login_manager.init_app(app)
 app.cli.add_command(create_tables)
 app.cli.add_command(destroy_tables)
 app.cli.add_command(restart_tables)
+
+def length(list):
+    return len(list)
+app.jinja_env.globals.update(length=length)
+
+
+def queryempty(q):
+    if (type(q) == list):
+        return len(q) == 0
+    else:
+        return q.first() is None
+app.jinja_env.globals.update(queryempty=queryempty)
+
+
+def convToStr(element):
+    return str(element)
+app.jinja_env.globals.update(convToStr=convToStr)
+
 
 from models import User,Festival,Reservation,Ticket,Stage,Interpret,perfs
 #fill_database()
@@ -38,13 +57,18 @@ def invalid_priviliges_check(p):
     if(current_user.priviliges < p ):
         return redirect(url_for('home'))
 
+def get_random_string():
+    letters = string.ascii_lowercase
+    result_str = ''.join(random.choice(letters) for i in range(8))
+    return result_str
+
 def fill_database():
     db.session.add(User(name = "aN", surname = "aS", login = "admin", unhashed_password= "admin", priviliges = 3))
     db.session.add(User(name = "User's_Name", surname = "User's_Surname", login = "user", unhashed_password= "user", priviliges = 0))
     db.session.commit()
-    f_pohoda = Festival(name="Pohoda", description="Je to super festival",genre="rock",date_start="2020-12-03",date_end="2020-12-04",location="Trenčín",price="30",max_capacity="500",remaining_capacity="500")
+    f_pohoda = Festival(name="Pohoda", description="Je to super festival",genre="rock", paid_on_spot = 1, date_start="2020-12-03",date_end="2020-12-04",location="Trenčín",price="30",max_capacity="500",remaining_capacity="500")
     db.session.add(f_pohoda)
-    f_grape = Festival(name="Grape", description="Je to tiez super festival",genre="metal",date_start="2020-12-06",date_end="2020-12-09",location="Piešťany",price="25",max_capacity="1000",remaining_capacity="1000")
+    f_grape = Festival(name="Grape", description="Je to tiez super festival",genre="metal", paid_on_spot = 0, date_start="2020-12-06",date_end="2020-12-09",location="Piešťany",price="25",max_capacity="1000",remaining_capacity="1000")
     db.session.add(f_grape)
     db.session.commit()
     s_O2 = Stage(name="O2_stage", festival=f_pohoda)
@@ -72,13 +96,47 @@ def fill_database():
 
 ''' HOME '''
 
-@app.route("/")
+@app.route("/", methods=['GET','POST'])
 def home():
     #fill_database()
-    #print(perfs)
+    genres = ["blues","country","dubstep","electro","folk","jazz","metal","party","pop","rap","r&b and soul","rock","techno"]
+    interprets = Interpret.query.all()
     festivals = Festival.query.all()
     stages = Stage.query.all()
-    return render_template("home.html", isHome=True, current_user = current_user, festivals=festivals, stages=stages)
+    if request.method == 'POST':
+        if request.form.get("filter_festival"):
+            if (request.form["name"] != "" and request.form["genre"] != "None"):
+                name = request.form["name"]
+                genre = request.form["genre"]
+                festivals = Festival.query.filter_by(name=name, genre=genre)
+            elif (request.form["name"] != "" and request.form["genre"] == "None"):
+                name = request.form["name"]
+                festivals = Festival.query.filter_by(name=name)
+            elif (request.form["name"] == "" and request.form["genre"] != "None"):
+                genre = request.form["genre"]
+                festivals = Festival.query.filter_by(genre=genre)
+        if request.form.get("filter_interpret"):
+            if (request.form["name"] != "" and request.form["genre"] != "None"):
+                name = request.form["name"]
+                genre = request.form["genre"]
+                interprets = Interpret.query.filter_by(name=name, genre=genre)
+            elif (request.form["name"] != "" and request.form["genre"] == "None"):
+                name = request.form["name"]
+                interprets = Interpret.query.filter_by(name=name)
+            elif (request.form["name"] == "" and request.form["genre"] != "None"):
+                genre = request.form["genre"]
+                interprets = Interpret.query.filter_by(genre=genre)
+    
+    context = {
+        'current_user' : current_user,
+        'genres' : genres,
+        'festivals':festivals,
+        'stages':stages,
+        'interprets':interprets,
+        'isHome': True
+    }
+
+    return render_template("home.html", **context)
 
 ''' TICKETS '''
 @app.route('/cashier')
@@ -87,6 +145,31 @@ def cashier():
     invalid_priviliges_check(1)
     reservations = Reservation.query.all()
     return render_template("cashier.html", reservations=reservations, isCashier=True)
+
+@app.route('/approve_reservation/<code>')
+@login_required
+def approve_reservation(code):
+    invalid_priviliges_check(1)
+    reservation = Reservation.query.filter_by(code = code).first()
+    reservation.approved = 1
+    db.session.commit()
+    return redirect(url_for('cashier'))
+
+@app.route('/remove_reservation/<code>')
+@login_required
+def remove_reservation(code):
+    reservation = Reservation.query.filter_by(code = code).first()
+    if(current_user.priviliges < 1 and current_user.id != reservation.owner.id ):
+       return redirect('home')
+    reservation.tickets_R[0].festival.remaining_capacity += len(reservation.tickets_R)
+    for ticket in reservation.tickets_R:
+       db.session.delete(ticket)
+    db.session.delete(reservation)
+    db.session.commit()
+    if(current_user.priviliges > 0):
+        return redirect(url_for('cashier'))
+    else:
+        return redirect(url_for('reservations'))
 
 @app.route('/buy_tickets/<name>', methods=['GET','POST'])
 #Zatial login required
@@ -98,11 +181,11 @@ def buy_tickets(name):
         # TODO Not enough capacity
         if num > festival.remaining_capacity:
             pass
-        reservation = Reservation(owner = current_user, paid=False)
+        reservation = Reservation(owner = current_user, paid=0, code = get_random_string(), approved = 0)
         db.session.add(reservation)
         db.session.commit()
         for _ in range(0,num):
-            ticket = Ticket(festival = festival, reservation = reservation)
+            ticket = Ticket(festival = festival, reservation = reservation, code = get_random_string())
             db.session.add(ticket)
 
         festival.remaining_capacity = festival.remaining_capacity - num
@@ -110,19 +193,15 @@ def buy_tickets(name):
         return redirect(url_for('reservations'))
     return render_template("buy_tickets.html", festival = festival)
 
-@app.route('/remove_reservation/<id>')
+@app.route('/pay_reservation/<code>')
 @login_required
-def remove_reservation(id):
-    invalid_priviliges_check(1)
-    reservation = Reservation.query.filter_by(id = int(id)).first()
-    reservation.tickets_R[0].festival.remaining_capacity += len(reservation.tickets_R)
-    for ticket in reservation.tickets_R:
-        db.session.delete(ticket)
-
-    db.session.delete(reservation)
+def pay_reservation(code):
+    reservation = Reservation.query.filter_by(code = code).first()
+    reservation.paid = 1
+    if(current_user.priviliges < 1 and current_user.id != reservation.owner.id ):
+       return redirect('home')
     db.session.commit()
-    return redirect(url_for('cashier'))
-
+    return redirect(url_for('reservations'))
 
 @app.route('/reservations')
 #Zatial login required
@@ -207,12 +286,36 @@ def edit_profile(login):
 
 ''' Admin '''
 
-@app.route('/admin')
+@app.route('/admin', methods=['GET','POST'])
 @login_required
 def admin():
     invalid_priviliges_check(3)
+    user_to_edit_id = -1
     users = User.query.all()
-    return render_template("admin.html", users = users, isAdmin=True)
+    if request.method == 'POST':
+        if  request.form.get("edit_button"):
+            user_to_edit_id = request.form['edit_button']
+            return render_template("admin.html", user_to_edit_id = user_to_edit_id, users = users, isAdmin=True)
+        elif request.form.get("submit_changes"):
+            print(request.form['submit_changes'])
+            user_to_edit_id = request.form['submit_changes']
+            user = User.query.filter_by(id = int(user_to_edit_id)).first()
+            if (request.form["name"] != ""):
+                user.name = request.form["name"]
+            if (request.form["surname"] != ""):
+                user.name = request.form["surname"]
+            if (request.form["login"] != ""):
+                user.name = request.form["login"]
+            if (request.form["password"] != ""):
+                user.unhashed_password = request.form["password"]
+            if (request.form["priviliges"] != ""):
+                user.priviliges = request.form["priviliges"]
+            db.session.commit()
+            return render_template("admin.html", user_to_edit_id = -1, users = users, isAdmin=True)
+
+
+    else:
+        return render_template("admin.html", user_to_edit_id = user_to_edit_id, users = users, isAdmin=True)
 
 @app.route('/remove_user/<id>')
 @login_required
@@ -249,6 +352,11 @@ def add_festival():
             description = request.form["description"]
         if (request.form["genre"] != ""):
             genre = request.form["genre"]
+        paid_on_spot = request.form.getlist('paid_on_spot')
+        if not paid_on_spot:
+            paid_on_spot = 0
+        else:
+            paid_on_spot = 1 
         if (request.form["date_start"] != ""):
             date_start = request.form["date_start"]
         if (request.form["date_end"] != ""):
@@ -260,7 +368,7 @@ def add_festival():
         if (request.form["max_capacity"] != ""):
             max_capacity = request.form["max_capacity"]
         
-        festival = Festival(name=name, description=description,genre=genre, date_start=date_start,date_end=date_end,location=location,price=price,max_capacity=max_capacity,remaining_capacity=max_capacity)
+        festival = Festival(name=name, description=description,genre=genre, paid_on_spot = paid_on_spot, date_start=date_start,date_end=date_end,location=location,price=price,max_capacity=max_capacity,remaining_capacity=max_capacity)
         db.session.add(festival)
         db.session.commit()
         return redirect(url_for('organizer'))

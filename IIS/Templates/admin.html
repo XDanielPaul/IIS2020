@@ -2,7 +2,7 @@
   
 {% block content %}
 
-    <h1 style= "margin-left:700px;  color:white">Admin Logged in.</h1>
+    <h1 style= "margin-left:700px; margin-top: 20px; color:white">User table</h1>
     
     <table class="admin_user_table">
       <thead>
@@ -11,20 +11,47 @@
             <th>Name</th>
             <th>Surname</th>
             <th>Login</th>
+            <th>Password</th>
             <th>Privilige</th>
+            <th>Edit User</th>
             <th>Delete User</th>
         </tr>
         </thead>    
         <tbody>
-         {% for user in users %}    
+         {% for user in users %}
+                {% if convToStr(user_to_edit_id) == convToStr(user.id) %}
+                <form method="post" action="">
+                    <tr>
+                        <td>{{user.id}}</td>
+                        <td><input style="width: 130px;" type="text" name="name" value ="{{name if name}}" placeholder="{{user.name}}"/></td>
+                        <td><input style="width: 130px;" type="text" name="surname" value ="{{surname if surname}}" placeholder="{{user.surname}}"/></td>
+                        <td><input style="width: 130px;" type="text" name="login" value ="{{login if login}}" placeholder="{{user.login}}"/></td>
+                        <td><input style="width: 800px;" type="text" name="password" value ="{{password if password}}" placeholder="{{user.password}}"/></td>
+                        <td><input style="width: 30px;" type="text" name="priviliges" value ="{{priviliges if priviliges}}" placeholder="{{user.priviliges}}"/></td>
+                        <td><button style="width: 130px;" type="submit" name="submit_changes" value="{{user.id}}">Submit</button></td>
+                        <td><a href="{{url_for('remove_user', id=user.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                    </tr>
+                </form>
+                {% else %}    
                 <tr>
                     <td>{{user.id}}</td>
                     <td>{{user.name}}</td>
                     <td>{{user.surname}}</td>
                     <td>{{user.login}}</td>
+                    <td>{{user.password}}</td>
                     <td>{{user.priviliges}}</td>
+                    <form method="post" action="">
+                    <td>
+                        {% if convToStr(user_to_edit_id) == "-1" %}
+                        <button type="submit" name="edit_button" value="{{user.id}}">Edit user</button>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    </form>
                     <td><a href="{{url_for('remove_user', id=user.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
                 </tr>
+                {% endif %}
             {% endfor %}
         </tbody>
     </table>

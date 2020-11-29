@@ -1,14 +1,12 @@
-Neregistrovany uzivatel. 
--> Hash kódy na lístky a rezervácie.
--> Dokoncenie registracie
-Rezervacia môže mať viac typov lístkov.
-Festival - paid_on_the_spot
-Potvrdenie rezervácie.
-Rozpis.
-Vstupenky - hradené pri vstupe/online.
-Search bar.
-Povinné polia *
-Pri chybnom forme zachovat polia, ktoré sú v poriadku.
-Osetrit vstupy polí.
+✔✖
+Neregistrovany uzivatel. ✖
+-> Hash kódy na lístky a rezervácie. ✔
+-> Dokoncenie registracie ✖
+Editacia Organizer ✖
+Rozpis. ✖
+Povinné polia * ✔
+Pri chybnom forme zachovat polia, ktoré sú v poriadku. ✖
+Osetrit vstupy polí. ✖✔
+Zobrazenie interpretov ✖✔
 
-Implementacia celej databazy
+Implementacia celej databazy 

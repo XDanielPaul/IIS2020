@@ -2,34 +2,101 @@
 
 {%block content%}
 
-{% for festival in festivals %} 
-<div class="container border-10 rounded border border-dark" style="background-color: silver; height: 50vh; margin-top: 20px;">
-    <div class="row">
-        <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 50vh; font-size:18px; font-family: monospace;">
-            <div style="margin-top: 10px;">
-                <p class="font-weight-bold text-uppercase">Festival: {{festival.name}}</p>
-                <p>Description: {{festival.description}}</p>
-                <p>Genre: {{festival.genre}}</p>
-                <p>Location: {{festival.location}}</p>
-                <p>Price: {{festival.price}} €</p>
-                <p>From: {{festival.date_start}} To: {{festival.date_end}} </p>
-                <p>Tickets left: {{festival.remaining_capacity}}/{{festival.max_capacity}}</p>
-                <a href="{{url_for('buy_tickets', name=festival.name)}}" class="btn btn-primary" style="background-color: rgb(4, 161, 4);">Buy tickets</a>
-            </div>
-        </div>
-        <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 50vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
-            <div style="margin-top: 10px;">
-                {% for stage in festival.stages %} 
-                    <p class="font-weight-bold text-uppercase">Stage: {{stage.name}}</p>
-                    <p class="font-weight-bold">Interprets:</p>
-                    {% for performer in stage.performers %} 
-                        <p>{{performer.name}}</p>
-                    {% endfor %}
-                {% endfor %}
-            </div>
-        </div>
-    </div>
+<div class="container border-10 rounded border border-dark" style="background-color: rgb(46, 44, 44); overflow-y: scroll; height: 50vh; margin-top: 20px;">
+<div class="container-flex" style="position: sticky; background-color: rgb(46, 44, 44); position: -webkit-sticky; top:0; z-index: 999;"> 
+    <form method="post" action="">
+        <input type="text" class="rounded" name="name" placeholder="Search festival">
+        <select class="rounded" name="genre" id="genre">
+        <option value="None">None</option>
+        {% for genre in genres %}
+        <option value="{{genre}}">{{genre}}</option>
+        {% endfor %}
+        </select>
+        <button class="rounded btn btn-primary" name="filter_festival"  value="filter_festival" type="submit">Filter</button>
+    </form>
 </div>
-{% endfor %}
+    {% if queryempty(festivals) %}
+    <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 50vh; font-size:18px; font-family: monospace;">
+        <h1>NO RESULT MATCHED SEARCHED PARAMETERS</h1>
+        </div>
+    {% else %}
+        {% for festival in festivals %} 
+        <div class="row">
+            <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 50vh; font-size:18px; font-family: monospace;">
+                <div style="margin-top: 10px;">
+                    <p class="font-weight-bold text-uppercase">Festival: {{festival.name}}</p>
+                    <p>Paid on spot: {% if festival.paid_on_spot == 1 %} ✔ {% else %} ✖ {% endif %} | Price: {{festival.price}} €</p>
+                    <p>Genre: {{festival.genre}}</p>
+                    <p>Location: {{festival.location}} </p>
+                    <p>From: {{festival.date_start}} To: {{festival.date_end}} </p>
+                    <p>{% if festival.remaining_capacity == 0 %} SOLD OUT {% else %}Tickets left: {{festival.remaining_capacity}}/{{festival.max_capacity}} {% endif %}</p>
+                    <p>Description: {{festival.description}}</p>
+                    {% if festival.remaining_capacity != 0 %}
+                    <a href="{{url_for('buy_tickets', name=festival.name)}}" class="btn btn-primary" style="background-color: rgb(4, 161, 4);">Buy tickets</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 50vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
+                <div style="margin-top: 10px;">
+                    {% for stage in festival.stages %} 
+                        <p class="font-weight-bold text-uppercase">Stage: {{stage.name}}</p>
+                        <p class="font-weight-bold">Interprets:</p>
+                        {% for performer in stage.performers %} 
+                            <p>{{performer.name}}</p>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+</div>
+
+<div class="container border-10 rounded border border-dark" style="background-color: rgb(46, 44, 44); overflow-y: scroll; height: 35vh; margin-top: 20px;">
+    <div class="container-flex" style="position: sticky; background-color: rgb(46, 44, 44); position: -webkit-sticky; top:0; z-index: 999;">    
+        <form method="post" action="">
+            <input type="text" class="rounded" name="name" value="{{name if name}}" placeholder="Search interpret">
+            <select class="rounded" name="genre" id="genre">
+            <option value="None">None</option>
+            {% for genre in genres %}
+            <option value="{{genre}}">{{genre}}</option>
+            {% endfor %}
+            </select>
+            <button class="rounded btn btn-primary" name="filter_interpret" value="filter_interpret" type="submit">Filter</button>
+        </form>
+    </div>
+    {% if queryempty(interprets) %}
+    <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 50vh; font-size:18px; font-family: monospace;">
+        <h1>NO RESULT MATCHED SEARCHED PARAMETERS</h1>
+        </div>
+    {% else %}
+        {% for interpret in interprets %} 
+        <div class="row">
+            <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 35vh; font-size:18px; font-family: monospace;">
+                <div style="margin-top: 10px;">
+                    <p class="font-weight-bold text-uppercase">Interpret: {{interpret.name}}</p>
+                    <p>Members: {{interpret.members}}</p>
+                    <p>Genre: {{interpret.genre}}</p>
+                    <p>Rating: {{interpret.rating}}</p>
+                </div>
+            </div>
+            <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 35vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
+                <div style="margin-top: 10px;">
+                    <p class="font-weight-bold text-uppercase">Can be seen:</p>
+                    {% for stage in stages %}
+                        {% for performer in stage.performers %}
+                            {% if performer.id == interpret.id %}
+                                <p>Festival {{stage.festival.name}}, Stage {{stage.name}}</p>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    {% endif %}
+
+    </div>
 
 {%endblock%}

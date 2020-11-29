@@ -11,13 +11,14 @@
                   <th>Name</th>
                   <th>Description</th>
                   <th>Genre</th>
+                  <th>Paid on spot</th>
                   <th>Date Start</th>
                   <th>Date End</th>
                   <th>Location</th>
                   <th>Price</th>
                   <th>Max capacity</th>
                   <th>Remaining capacity</th>
-                  <th>Tickets F</th>
+                  <th>Number of sold tickets</th>
                   <th>Stages</th>
                   <th>Delete Festival</th>
               </tr>
@@ -29,13 +30,14 @@
                           <td>{{festival.name}}</td>
                           <td>{{festival.description}}</td>
                           <td>{{festival.genre}}</td>
+                          <td>{% if festival.paid_on_spot == 1 %} Paid on spot {% else %} Paid online {% endif %}</td>
                           <td>{{festival.date_start}}</td>
                           <td>{{festival.date_end}}</td>
                           <td>{{festival.location}}</td>
                           <td>{{festival.price}}</td>
                           <td>{{festival.max_capacity}}</td>
                           <td>{{festival.remaining_capacity}}</td>
-                          <td>{{festival.tickets_F}}</td>
+                          <td>{{length(festival.tickets_F)}}</td>
                           <td>{% for stg in festival.stages %}
                               {{stg.name + ", "}}
                             {% endfor %}

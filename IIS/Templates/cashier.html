@@ -1,7 +1,6 @@
 {% extends "base.html" %}
   
 {% block content %}
-<h1>Cashier</h1>
 
 <h1 class="display-4 center_color" style="margin-top: 40px;"> Stage table </h1>
             <table class="admin_user_table">
@@ -10,7 +9,10 @@
                       <th>ID</th>
                       <th>Paid</th>
                       <th>User</th>
+                      <th>Approved</th>
+                      <th>Code</th>
                       <th>Tickets R</th>
+                      <th>Approve Reservation</th>
                       <th>Delete Reservation</th>
                   </tr>
                   </thead>    
@@ -18,14 +20,23 @@
                    {% for reservation in reservations %}    
                           <tr>
                               <td>{{reservation.id}}</td>
-                              <td>{{reservation.paid}}</td>
+                              <td>{% if reservation.paid == 1 %} ✔ {% else %} ✖ {% endif %}</td>
                               <td>{{reservation.owner.login}}</td>
+                              <td>{% if reservation.approved == 1 %} ✔ {% else %} ✖ {% endif %}</td>
+                              <td>{{reservation.code}}</td>
                               <td>
                                 {% for ticket in reservation.tickets_R %}    
                                 {{ticket}}
                                 {% endfor %}
                               </td>
-                              <td><a href="{{url_for('remove_reservation', id=reservation.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                              {% if reservation.approved == 1 %}
+                              <td>Approved</td>
+                              {% elif reservation.tickets_R[0].festival.paid_on_spot == 0 and reservation.paid == 1 or reservation.tickets_R[0].festival.paid_on_spot == 1 %}
+                              <td><a href="{{url_for('approve_reservation', code=reservation.code)}}" class="btn btn-primary" style="background-color:  rgb(4, 161, 4);">Approve</a></td>
+                              {% else %}
+                              <td>✖</td>
+                              {% endif %}
+                              <td><a href="{{url_for('remove_reservation', code=reservation.code)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
                           </tr>
                       {% endfor %}
                     </tbody>
