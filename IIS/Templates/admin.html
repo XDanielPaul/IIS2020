@@ -27,8 +27,11 @@
                         <td><input style="width: 130px;" type="text" name="surname" value ="{{surname if surname}}" placeholder="{{user.surname}}"/></td>
                         <td><input style="width: 130px;" type="text" name="login" value ="{{login if login}}" placeholder="{{user.login}}"/></td>
                         <td><input style="width: 800px;" type="text" name="password" value ="{{password if password}}" placeholder="{{user.password}}"/></td>
-                        <td><input style="width: 30px;" type="text" name="priviliges" value ="{{priviliges if priviliges}}" placeholder="{{user.priviliges}}"/></td>
-                        <td><button style="width: 130px;" type="submit" name="submit_changes" value="{{user.id}}">Submit</button></td>
+                        <td><input style="width: 30px;" type="number" name="priviliges" value ="{{priviliges if priviliges}}" placeholder="{{user.priviliges}}" min="0" max="3"/></td>
+                        <td>
+                            <button style="width: 80px; margin-bottom: 5px; background-color: rgb(4, 161, 4);" type="submit" name="submit_changes" value="{{user.id}}" class="btn btn-primary">Submit</button>
+                            <a href="{{url_for('admin')}}"" style="width: 80px; background-color: red;" type="cancel" name="cancel_changes" value="{{user.id}}" class="btn btn-primary">Cancel</button>
+                        </td>
                         <td><a href="{{url_for('remove_user', id=user.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
                     </tr>
                 </form>
@@ -43,7 +46,7 @@
                     <form method="post" action="">
                     <td>
                         {% if convToStr(user_to_edit_id) == "-1" %}
-                        <button type="submit" name="edit_button" value="{{user.id}}">Edit user</button>
+                        <button type="submit" name="edit_button" value="{{user.id}}"" class="btn btn-primary" style="background-color: rgb(4, 161, 4);">Edit</button>
                         {% else %}
                         -
                         {% endif %}
@@ -55,5 +58,5 @@
             {% endfor %}
         </tbody>
     </table>
-
+    <a href="{{url_for('add_user')}}" class="btn btn-primary center_but" style="background-color: rgb(4, 161, 4);">Add user</a>
     {% endblock %}

@@ -7,6 +7,23 @@ perfs= db.Table('perfs',
     db.Column('stage_id', db.Integer, db.ForeignKey('stage.id'))
 )
 
+#class Schedule(db.Model):
+#   id= db.Column(db.Integer, primary_key = True)
+#   day = db.Column(db.String(10))
+#   performances = db.relationship('Performance', backref='schedule')
+#   stage_id = db.Column(db.Integer, db.ForeignKey('stage.id'))
+
+# ADD TO STAGE
+# schedules = db.relationship('Schedule', backref='stage')
+# ADD TO INTERPRET
+# performances = db.relationship('Performance', backref='interpret')
+
+#class Performance(db.Model):
+#   id = db.Column(db.Integer, primary_key = True)
+#   start = db.Column(db.Time)
+#   end = db.Column(db.Time)
+#   performer_id = db.Column(db.Integer, db.ForeignKey('interpret.id'))
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(60))
@@ -57,7 +74,7 @@ class Festival(db.Model):
     stages = db.relationship('Stage', backref='festival')
 
     def recalculate_remaining_capacity(self):
-        self.remaining_capacity = self.max_capacity-self.tickets_F.size()
+        self.remaining_capacity = int(self.max_capacity)-len(self.tickets_F)
 
 
 class Stage(db.Model):

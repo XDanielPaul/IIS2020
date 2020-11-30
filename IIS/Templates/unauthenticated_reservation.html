@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{%block content%}
+
+<div class="container border-10 rounded border border-dark" style="background-color: silver; height: 20vh; margin-top: 20px;">
+    <div class="row">
+        <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 20vh; font-size:18px; font-family: monospace;">
+            <div style="margin-top: 10px;">
+                <p class="font-weight-bold text-uppercase">You will need to remember this code or create an account to keep track of your reservation.</p>
+                <a class="font-weight-bold" style="color: red; font-size: 30px;">{{reservation.code}}</a>
+            </div>
+            <a style="margin-top: 20px; background-color:rgb(4, 161, 4)" class="btn btn-primary" href="{{url_for('register', reservation = reservation.code)}}">Register</a>
+
+        </div>
+    </div>
+
+{%endblock%}

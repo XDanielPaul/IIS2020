@@ -1,12 +1,15 @@
 ✔✖
-Neregistrovany uzivatel. ✖
--> Hash kódy na lístky a rezervácie. ✔
--> Dokoncenie registracie ✖
 Editacia Organizer ✖
 Rozpis. ✖
-Povinné polia * ✔
-Pri chybnom forme zachovat polia, ktoré sú v poriadku. ✖
+User - email
+EMAIL:
+    Admin -> Add user
+    Edit Profile
+    Registration
+    SAVE DATA IF INCORRECT LOGIN/PASSWORD
+
+Reservation - Date created
+Pri chybnom forme zachovat polia, ktoré sú v poriadku. ✔
 Osetrit vstupy polí. ✖✔
-Zobrazenie interpretov ✖✔
 
 Implementacia celej databazy 

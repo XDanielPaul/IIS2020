@@ -1,39 +1,92 @@
 {% extends "base.html" %}
 
 {%block content%}
-    {%if not isEdit%}
-    <div class="container" style="transform: translate(0%, 100%);">
-        <div class="row" style="height: 100%;">
-        <div class="col-12 align-middle">
-            <ul class="rounded list-group list-group-flush">
-                <li class="border border-dark bg-primary list-group-item">Name: {{viewed_user.name}}</li>
-                <li class="border border-dark bg-primary list-group-item">Surname: {{viewed_user.surname}}</li>
-                <li class="border border-dark bg-primary list-group-item">Login: {{viewed_user.login}}</li>
-                {%if viewed_user.login == current_user.login%}
-                <a href="{{url_for('edit_profile', login=current_user.login)}}" class="btn btn-secondary" role="button">Edit</a>
-                {%endif%}
-              </ul>
-        </div>
+{%if not isEdit%}
+  <h1 style="color: aliceblue; margin-left: 17%; margin-top: 40px;">Personal info</h1>
+  <div class="container border-10 rounded border border-dark" style="background-color: silver; height: 35vh; margin-top: 20px;">
+    <div class="row">
+        <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 35vh; font-size:18px; font-family: monospace;">
+            <div style="margin-top: 10px; margin-bottom: 10px;">
+              <p><strong>Name:</strong> {{viewed_user.name}}</p>
+              <p><strong>Surname:</strong> {{viewed_user.surname}}</p>
+              <p><strong>Email:</strong></p>
+              {%if viewed_user.login == current_user.login%}
+              <p><strong>Login:</strong> {{viewed_user.login}}</p>
+              {%endif%}
+            </div>
+            <div>
+            {%if viewed_user.login == current_user.login%}
+              <a href="{{url_for('edit_profile', login=current_user.login)}}" class="btn btn-primary" style="background-color: rgb(4, 161, 4);">Edit<a/>
+            {%endif%}
+            </div>
+          </div>
         </div>
     </div>
-    {%endif%}
-    {%if isEdit%}
-    <div class="container" style="transform: translate(0%, 70%);">
-        <div class="row" style="height: 100%;">
-        <div class="col-12 align-middle">
-            <ul class="rounded list-group list-group-flush">
-                <form method="post" action="">
-                <a href="{{url_for('profile', login=current_user.login)}}" class="btn btn-danger" role="button">Back</a>
-                <li class="border border-dark bg-primary list-group-item">Name: <input type="text" name="name" value ="{{name if name}}" placeholder="{{current_user.name}}"/></li>
-                <li class="border border-dark bg-primary list-group-item">Surname: <input type="text" name="surname" value ="{{surname if surname}}" placeholder="{{current_user.surname}}"/></li>
-                <li class="border border-dark bg-primary list-group-item">Login: <input type="text" name="login" value ="{{login if login}}" placeholder="{{current_user.login}}"/></li>
-                <button type="submit" class="border border-secondary btn btn-secondary">Submit changes</button>
-                </form>
+
+{%endif%}
+{%if isEdit%}
+  <div class="container" style="transform: translate(0%, 10%);">
+      <div class="row" style="height: 100%;">
+      <hr>
+        <div class="col-md-9 personal-info">
+          <h3 style="color: white;">Personal info</h3>
+          
+          <form class="form-horizontal" method="post" action="">
+            <div class="form-group">
+              <label class="col-lg-3 control-label" style="color: white;">Name:</label>
+              <div class="col-lg-8">
+                <input class="form-control" name="name" type="text" {% if not namee %} value ="{{name if name}}" {% else %} value ="{{namee}}" {% endif %} placeholder="{{current_user.name}}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-lg-3 control-label" style="color: white;">Surname:</label>
+              <div class="col-lg-8">
+                <input class="form-control" name="surname" type="text" {% if not surnamee %} value ="{{name if name}}" {% else %} value ="{{surnamee}}" {% endif %} placeholder="{{current_user.surname}}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-lg-3 control-label" style="color: white;">Email:</label>
+              <div class="col-lg-8">
+                <input class="form-control" name="email" type="text" placeholder="Does not work so far...">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label" style="color: white;">Login:</label>
+              <div class="col-md-8">
+                <input class="form-control" name="login" type="text" {% if not loginn %} value ="{{name if name}}" {% else %} value ="{{loginn}}" {% endif %} placeholder="{{current_user.login}}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label" style="color: white;">Password:</label>
+              <div class="col-md-8">
+                <input class="form-control" name="password" type="password" value="{{password if password}}" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label" style="color: white;">Confirm password:</label>
+              <div class="col-md-8">
+                <input class="form-control" name="confirm_password" type="password" value="{{password if password}}" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label"></label>
+              <div class="col-md-8">
                 
-              </ul>
-            
-        </div>
-        </div>
-    </div>
-    {%endif%}
+                <button type="submit" class="btn btn-primary">Save Changes</button> 
+                <span></span>
+                <a href="{{url_for('profile', login=current_user.login)}}" type="button" class="btn btn-primary" style="background-color: red;">Cancel</a>
+              </div>
+              {% if loginExists %}
+                <small style="color: red; margin-left: 15px;">Entered login already exists.</small>
+                {% endif %}
+                {% if passwordsDontMatch %}
+                <small style="color: red; margin-left: 15px;">Entered passwords don't match.</small>
+                {% endif %}
+            </div>
+          </form>
+        </div>   
+      <hr>
+      </div>
+  </div>
+{%endif%}
 {%endblock%}

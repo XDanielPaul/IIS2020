@@ -1,44 +1,94 @@
 {% extends "base.html" %}
 
 {%block content%}
-<h1 style="color: aliceblue; margin-left: 17%; margin-top: 40px;">Reservations:</h1>
-{% for reservation in reservations %} 
-<div class="container border-10 rounded border border-dark" style="background-color: silver; height: 40vh; margin-top: 20px;">
-    <div class="row">
-        <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 40vh; font-size:18px; font-family: monospace;">
-            <div style="margin-top: 10px;">
-                <p class="font-weight-bold text-uppercase">Reservation ID: {{reservation.id}}</p>
-                <p>Festival: {{reservation.tickets_R[0].festival.name}}</p>
-                {% if reservation.tickets_R[0].festival.paid_on_spot == True %}
-                <p>Paid on spot </p>
-                {% else %}
-                <p>Paid: {% if reservation.paid == 1 %} ✔ {% else %} ✖ {% endif %}</p>
-                {% endif %}
-                <p>{% if reservation.approved == False %} Waiting for approval from cashier. {% else %} Approved by cashier. {% endif %}</p>
-                <p>Code: {{reservation.code}}</p>
-                <p>Price: {{reservation.tickets_R[0].festival.price * length(reservation.tickets_R)}}€</p>
-                {% if reservation.tickets_R[0].festival.paid_on_spot == False and reservation.paid == 0 %}
-                <a class="btn btn-primary" href="{{url_for('pay_reservation', code=reservation.code)}}"  style="background-color: rgb(4, 161, 4);">Pay tickets</a>
-                {% endif %}
-                <a class="btn btn-primary" href="{{url_for('remove_reservation', code=reservation.code)}}" style="background-color:red;">Cancel reservation</a>
+{% if current_user.is_authenticated %}
+    <h1 style="color: aliceblue; margin-left: 17%; margin-top: 40px;">Reservations:</h1>
+    {% for reservation in reservations %} 
+    <div class="container border-10 rounded border border-dark" style="background-color: silver; height: 40vh; margin-top: 20px;">
+        <div class="row">
+            <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 40vh; font-size:18px; font-family: monospace;">
+                <div style="margin-top: 10px;">
+                    <p class="font-weight-bold text-uppercase">Reservation ID: {{reservation.id}}</p>
+                    <p>Festival: {{reservation.tickets_R[0].festival.name}}</p>
+                    {% if reservation.tickets_R[0].festival.paid_on_spot == True %}
+                    <p>Paid on spot </p>
+                    {% else %}
+                    <p>Paid: {% if reservation.paid == 1 %} ✔ {% else %} ✖ {% endif %}</p>
+                    {% endif %}
+                    <p>{% if reservation.approved == False %} Waiting for approval from cashier. {% else %} Approved by cashier. {% endif %}</p>
+                    <p>Code: {{reservation.code}}</p>
+                    <p>Price: {{reservation.tickets_R[0].festival.price * length(reservation.tickets_R)}}€</p>
+                    {% if reservation.tickets_R[0].festival.paid_on_spot == False and reservation.paid == 0 %}
+                    <a class="btn btn-primary" href="{{url_for('pay_reservation', code=reservation.code)}}"  style="background-color: rgb(4, 161, 4);">Pay tickets</a>
+                    {% endif %}
+                    <a class="btn btn-primary" href="{{url_for('remove_reservation', code=reservation.code)}}" style="background-color:red;">Cancel reservation</a>
+                </div>
+            </div>
+            <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 40vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
+                <div style="margin-top: 10px;">
+                    {% if reservation.approved == 1 %}
+                    <p class="font-weight-bold text-uppercase">Tickets:</p>
+                        {% for ticket in reservation.tickets_R %}    
+                            <p>Ticket ID: {{ticket.id}}</p>
+                            <p>Ticket Code: {{ticket.code}}</p>
+                            <p></p>
+                        {% endfor %}
+                    {% else %}
+                    <p> Tickets will be displayed here after your reservation is approved by cashier. </p>
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 40vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
-            <div style="margin-top: 10px;">
-                {% if reservation.approved == 1 %}
-                <p class="font-weight-bold text-uppercase">Tickets:</p>
-                    {% for ticket in reservation.tickets_R %}    
-                        <p>Ticket ID: {{ticket.id}}</p>
-                        <p>Ticket Code: {{ticket.code}}</p>
-                        <p></p>
-                    {% endfor %}
-                {% else %}
-                <p> Tickets will be displayed here after your reservation is approved by cashier. </p>
-                {% endif %}
+    </div>    
+    {% endfor %}
+{% else %}
+    <form method="post" action="" style="color: aliceblue; margin-top: 20px; margin-left: 30px;">
+        <label>Enter code to search for reservation:</label>
+        <input type="text" class="rounded" name="code" placeholder="Reservation code">
+        <button class="rounded btn btn-primary" name="search_reservation"  value="search_reservation" type="submit">Search</button>
+    </form>
+    {% if reservation %}
+        <div class="container border-10 rounded border border-dark" style="background-color: silver; height: 40vh; margin-top: 20px;">
+        <div class="row">
+            <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 40vh; font-size:18px; font-family: monospace;">
+                <div style="margin-top: 10px;">
+                    <p class="font-weight-bold text-uppercase">Reservation ID: {{reservation.id}}</p>
+                    <p>Festival: {{reservation.tickets_R[0].festival.name}}</p>
+                    {% if reservation.tickets_R[0].festival.paid_on_spot == True %}
+                    <p>Paid on spot </p>
+                    {% else %}
+                    <p>Paid: {% if reservation.paid == 1 %} ✔ {% else %} ✖ {% endif %}</p>
+                    {% endif %}
+                    <p>{% if reservation.approved == False %} Waiting for approval from cashier. {% else %} Approved by cashier. {% endif %}</p>
+                    <p>Code: {{reservation.code}}</p>
+                    <p>Price: {{reservation.tickets_R[0].festival.price * length(reservation.tickets_R)}}€</p>
+                    {% if reservation.tickets_R[0].festival.paid_on_spot == False and reservation.paid == 0 %}
+                    <a class="btn btn-primary" href="{{url_for('pay_reservation', code=reservation.code)}}"  style="background-color: rgb(4, 161, 4);">Pay tickets</a>
+                    {% endif %}
+                    <a class="btn btn-primary" href="{{url_for('remove_reservation', code=reservation.code)}}" style="background-color:red;">Cancel reservation</a>
+                </div>
+            </div>
+            <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 40vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
+                <div style="margin-top: 10px;">
+                    {% if reservation.approved == 1 %}
+                    <p class="font-weight-bold text-uppercase">Tickets:</p>
+                        {% for ticket in reservation.tickets_R %}    
+                            <p>Ticket ID: {{ticket.id}}</p>
+                            <p>Ticket Code: {{ticket.code}}</p>
+                            <p></p>
+                        {% endfor %}
+                    {% else %}
+                    <p> Tickets will be displayed here after your reservation is approved by cashier. </p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
-</div>    
-{% endfor %}
+    <div style="margin-top: 20px; margin-left: 295px;"> 
+        <p style="color: aliceblue;">You can register your reservation to account.</p>
+        <a class="btn btn-primary" href="{{url_for('register', reservation=reservation.code)}}"  style="background-color: rgb(4, 161, 4);">Register</a>
+    </div>   
+    {% endif %}
+{% endif %}
 
 {%endblock%}

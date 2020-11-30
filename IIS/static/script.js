@@ -1,6 +1,7 @@
 
+
+
 function validateInterpret(){
-  console.log("GOT HERE");
   var name = document.forms["Interpret"]["interpret"].value;
   var members = document.forms["Interpret"]["members"].value;
   var rating = document.forms["Interpret"]["rating"].value;

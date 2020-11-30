@@ -3,6 +3,7 @@
         
 {% block content %}
     <div class="container-flex">
+      
       <h1 class="display-4 center_color" style="margin-top: 40px;"> Festival table </h1>
         <table class="admin_user_table">
           <thead>
@@ -20,11 +21,59 @@
                   <th>Remaining capacity</th>
                   <th>Number of sold tickets</th>
                   <th>Stages</th>
+                  <th>Edit</th>
                   <th>Delete Festival</th>
               </tr>
-              </thead>    
-              <tbody>
-               {% for festival in festivals %}    
+          </thead>    
+            <tbody>
+               {% for festival in festivals %} 
+               {% if convToStr(festival_to_edit_id) == convToStr(festival.id) %}
+               <form method="post" action="">
+                <tr>
+                  <td>{{festival.id}}</td>
+                  <td><input type="text" style="width: 80px;" name="name" value="{{name if name}}" placeholder={{festival.name}}/></td>
+                  <td><input type="text" style="width: 100px;" name="description" value="{{description if description}}"/></td>
+                  <td><select name="genre" value="{{genre if genre}}" placeholder={{festival.genre}}>
+                    <option value=""></option>
+                    <option value="blues">Blues</option>
+                    <option value="country">Country</option>
+                    <option value="dubstep">Dubstep</option>
+                    <option value="electro">Electro</option>
+                    <option value="folk">Folk</option>
+                    <option value="jazz">Jazz</option>
+                    <option value="metal">Metal</option>
+                    <option value="party">Party</option>
+                    <option value="pop">Pop</option>
+                    <option value="rap">Rap</option>
+                    <option value="r&b and soul">R&B and soul</option>
+                    <option value="rock">Rock</option>
+                    <option value="techno">Techno</option>
+                  </select>
+                  </td>
+                  {% if festival.paid_on_spot == 1 %}
+                    <td><input checked type="checkbox" style="width: 20px; height: 20px;" name="paid_on_spot" value="{{paid_on_spot if paid_on_spot}}"/></td>
+                  {% else %}
+                    <td><input type="checkbox" style="width: 20px; height: 20px;" name="paid_on_spot" value="{{paid_on_spot if paid_on_spot}}"/></td>
+                  {% endif %}
+                  <td><input type="date" style="width: 80px;" name="date_start" value="{{date_start if date_start}}"/></td>
+                  <td><input type="date" style="width: 80px;" name="date_end" value="{{date_end if date_end}}"/></td>
+                  <td><input type="text" style="width: 80px;" name="location" value="{{location if location}}" placeholder={{festival.location}}/></td>
+                  <td><input type="number" style="width: 80px;" name="price" value="{{price if price}}" placeholder={{festival.price}}/></td>
+                  <td><input type="number" style="width: 80px;" name="max_capacity" value="{{max_capacity if max_capacity}}" placeholder={{festival.max_capacity}}></td>
+                  <td>{{festival.remaining_capacity}}</td>
+                  <td>{{length(festival.tickets_F)}}</td>
+                  <td>{% for stg in festival.stages %}
+                    {{stg.name + ", "}}
+                  {% endfor %}</td>
+                  <td>
+                    <button style="width: 80px; margin-bottom:5px; background-color:  rgb(4, 161, 4);" type="submit" name="submit_festival" value="{{festival.id}}" class="btn btn-primary">Submit</button>
+                    <a href="{{url_for('organizer')}}" style="width: 80px; margin-bottom:5px; background-color:  red;" type="cancel" name="cancel_changes" value="{{festival.id}}" class="btn btn-primary">Cancel</button>
+                  </td>
+                  <td><a href="{{url_for('remove_festival', id=festival.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                </tr>
+                </form>
+               
+               {% else %} 
                       <tr>
                           <td>{{festival.id}}</td>
                           <td>{{festival.name}}</td>
@@ -42,76 +91,161 @@
                               {{stg.name + ", "}}
                             {% endfor %}
                           </td>
+                          <form method="post" action="">
+                            <td>
+                              <button type="submit" class="btn btn-primary" name="edit_festival" value="{{festival.id}}" style="background-color: rgb(4, 161, 4);">Edit</button>
+                            </td>
+                          </form>
                           <td><a href="{{url_for('remove_festival', id=festival.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
                       </tr>
+                  {% endif %}
+                  {% endfor %}
+            </tbody>
+        </table>
+        <td><a href="{{url_for('add_festival')}}" class="btn btn-primary center_but" style="background-color: rgb(4, 161, 4);">Add festival</a></td>
+
+      <h1 class="display-4 center_color" style="margin-top: 40px;"> Stage table </h1>
+        <table class="admin_user_table">
+          <thead>
+              <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Festival Name</th>
+                  <th>Performers</th>
+                  <th>Edit</th>
+                  <th>Delete Stage</th>
+              </tr>
+              </thead>    
+              <tbody>
+               {% for stage in stages %}
+               {% if convToStr(stage_to_edit_id) == convToStr(stage.id) %}
+               <form method="post" action="">
+                <tr>
+                  <td>{{stage.id}}</td>
+                  <td><input type="text" style="width: 120px;" name="name" value="{{name if name}}" placeholder={{stage.name}}/></td>
+                  <td>
+                    <select name="festival_name" style="width: 130px;" class="form-control" id="festival_name">
+                      <option value=""></option>
+                      {% for festival in festivals %}
+                        <option value="{{festival.id}}">{{festival.name}}</option>
+                      {% endfor %}
+                    </select>
+                </td>
+                  
+                  <td>
+                    {% for performer in stage.performers %}    
+                    {{performer.name + ", "}}
+                    {% endfor %}
+                  </td>
+                  <td>
+                    <button style="width: 80px; margin-bottom:5px; background-color:  rgb(4, 161, 4);" type="submit" name="submit_stage" value="{{stage.id}}" class="btn btn-primary">Submit</button>
+                    <a href="{{url_for('organizer')}}" style="width: 80px; margin-bottom:5px; background-color:  red;" type="cancel" name="cancel_stage" value="{{stage.id}}" class="btn btn-primary">Cancel</button>
+                  </td>
+                  <td><a href="{{url_for('remove_stage', id=stage.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                </tr>
+              </form>
+               {% else %}
+                  <tr>
+                      <td>{{stage.id}}</td>
+                      <td>{{stage.name}}</td>
+                      <td>{{stage.festival.name}}</td>
+                      <td>
+                        {% for performer in stage.performers %}    
+                        {{performer.name + ", "}}
+                        {% endfor %}
+                      </td>
+                      <form method="post" action="">
+                        <td>
+                          <button type="submit" class="btn btn-primary" name="edit_stage" value="{{stage.id}}" style="background-color: rgb(4, 161, 4);">Edit</button>
+                        </td>
+                      </form>
+                      <td><a href="{{url_for('remove_stage', id=stage.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                  </tr>
+                {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+            <td><a href="{{url_for('add_stage')}}" class="btn btn-primary center_but" style="background-color: rgb(4, 161, 4);">Add stage</a></t>
+      
+      
+        <h1 class="display-4 center_color" style="margin-top: 40px;"> Interpret table </h1>
+        <table class="admin_user_table">
+          <thead>
+              <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Members</th>
+                  <th>Rating</th>
+                  <th>Genre</th>
+                  <th>Stages</th>
+                  <th>Edit</th>
+                  <th>Delete Interpret</th>
+              </tr>
+              </thead>    
+              <tbody>
+               {% for interpret in interprets %}
+               {% if convToStr(interpret_to_edit_id) == convToStr(interpret.id) %}
+               <form method="post" action="">
+                 <tr>
+                   <td>{{interpret.id}}</td>
+                   <td><input type="text" style="width: 120px;" name="name" value="{{name if name}}" placeholder={{interpret.name}}/></td>
+                   <td><input type="text" style="width: 120px;" name="members" value="{{members if members}}" placeholder={{interpret.members}}/></td>
+                   <td><input type="number" style="width: 120px;" name="rating" value="{{rating if rating}}" placeholder={{interpret.rating}} min="0" max="10"/></td>
+                   <td><select name="genre" value="{{genre if genre}}" placeholder={{interpret.genre}}>
+                    <option value=""></option>
+                    <option value="blues">Blues</option>
+                    <option value="country">Country</option>
+                    <option value="dubstep">Dubstep</option>
+                    <option value="electro">Electro</option>
+                    <option value="folk">Folk</option>
+                    <option value="jazz">Jazz</option>
+                    <option value="metal">Metal</option>
+                    <option value="party">Party</option>
+                    <option value="pop">Pop</option>
+                    <option value="rap">Rap</option>
+                    <option value="r&b and soul">R&B and soul</option>
+                    <option value="rock">Rock</option>
+                    <option value="techno">Techno</option>
+                  </select>
+                  </td>
+                  <td>
+                    {% for stg in interpret.stages %}    
+                    {{stg.name + ", "}}
+                    {% endfor %}
+                  </td>
+                  <td>
+                    <button style="width: 80px; margin-bottom:5px; background-color:  rgb(4, 161, 4);" type="submit" name="submit_interpret" value="{{interpret.id}}" class="btn btn-primary">Submit</button>
+                    <a href="{{url_for('organizer')}}" style="width: 80px; margin-bottom:5px; background-color:  red;" type="cancel" name="cancel_interpret" value="{{interpret.id}}" class="btn btn-primary">Cancel</button>
+                  </td>
+                  <td><a href="{{url_for('remove_interpret', id=interpret.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                 </tr>
+               </form>
+               {% else %}
+                      <tr>
+                          <td>{{interpret.id}}</td>
+                          <td>{{interpret.name}}</td>
+                          <td>{{interpret.members}}</td>
+                          <td>{{interpret.rating}}</td>
+                          <td>{{interpret.genre}}</td>
+                          <td>
+                            {% for stg in interpret.stages %}    
+                            {{stg.name + ", "}}
+                            {% endfor %}
+                          </td>
+                          <form method="post" action="">
+                            <td>
+                              <button type="submit" class="btn btn-primary" name="edit_interpret" value="{{interpret.id}}" style="background-color: rgb(4, 161, 4);">Edit</button>
+                            </td>
+                          </form>
+                          <td><a href="{{url_for('remove_interpret', id=interpret.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                      </tr>
+                  {% endif %}
                   {% endfor %}
                 </tbody>
             </table>
-            <td><a href="{{url_for('add_festival')}}" class="btn btn-primary center_but" style="background-color: rgb(4, 161, 4);">Add festival</a></td>
-
-
-            <h1 class="display-4 center_color" style="margin-top: 40px;"> Stage table </h1>
-            <table class="admin_user_table">
-              <thead>
-                  <tr>
-                      <th>ID</th>
-                      <th>Name</th>
-                      <th>Festival Name</th>
-                      <th>Performers</th>
-                      <th>Delete Stage</th>
-                  </tr>
-                  </thead>    
-                  <tbody>
-                   {% for stage in stages %}    
-                          <tr>
-                              <td>{{stage.id}}</td>
-                              <td>{{stage.name}}</td>
-                              <td>{{stage.festival.name}}</td>
-                              <td>
-                                {% for performer in stage.performers %}    
-                                {{performer.name + ", "}}
-                                {% endfor %}
-                              </td>
-                              <td><a href="{{url_for('remove_stage', id=stage.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
-                          </tr>
-                      {% endfor %}
-                    </tbody>
-                </table>
-                <td><a href="{{url_for('add_stage')}}" class="btn btn-primary center_but" style="background-color: rgb(4, 161, 4);">Add stage</a></td>
-
-
-            <h1 class="display-4 center_color" style="margin-top: 40px;"> Interpret table </h1>
-            <table class="admin_user_table">
-              <thead>
-                  <tr>
-                      <th>ID</th>
-                      <th>Name</th>
-                      <th>Members</th>
-                      <th>Rating</th>
-                      <th>Genre</th>
-                      <th>Stages</th>
-                      <th>Delete Interpret</th>
-                  </tr>
-                  </thead>    
-                  <tbody>
-                   {% for interpret in interprets %}    
-                          <tr>
-                              <td>{{interpret.id}}</td>
-                              <td>{{interpret.name}}</td>
-                              <td>{{interpret.members}}</td>
-                              <td>{{interpret.rating}}</td>
-                              <td>{{interpret.genre}}</td>
-                              <td>
-                                {% for stg in interpret.stages %}    
-                                {{stg.name + ", "}}
-                                {% endfor %}
-                              </td>
-                              <td><a href="{{url_for('remove_interpret', id=interpret.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
-                          </tr>
-                      {% endfor %}
-                    </tbody>
-                </table>
-                <td><a href="{{url_for('add_interpret')}}" class="btn btn-primary center_but" style="background-color: rgb(4, 161, 4);">Add interpret</a></td>
-        </div>
+          <td><a href="{{url_for('add_interpret')}}" class="btn btn-primary center_but" style="background-color: rgb(4, 161, 4);">Add interpret</a></td>
+    </div>
         <a href="{{url_for('add_interpret_to_stage')}}" class="btn btn-primary center_but" style="background-color: rgb(4, 161, 4);">Add interpret to stage</a>
+        
+
         {% endblock %}

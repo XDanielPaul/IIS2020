@@ -1,11 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_login import login_user, logout_user, current_user, login_required
+from flask_mail import Mail, Message
 from werkzeug.security import check_password_hash
 from commands import create_tables, destroy_tables, restart_tables
 from extensions import db,login_manager
 from settings import *
 from datetime import timedelta
-import random, string
+import random, string, time
 
 #from models import *
 import pymysql
@@ -15,9 +16,22 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = "SECRET_KEY"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://cgewkxohwrzbqz:791eb1445e7861448b11c5f17bb7fc7b0041d97958e425c9dc577a002c2c05ee@ec2-3-220-98-137.compute-1.amazonaws.com:5432/d5m38slqf76vdr'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
-app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(minutes=5)
+app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(minutes=30)
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'iisprojectfestival@gmail.com'
+app.config['MAIL_PASSWORD'] = 'vxowcngqolmtaxzh'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_SUPPRESS_SEND'] = False
+app.config['MAIL_DEBUG'] = True
+app.config['TESTING'] = False
+
+mail = Mail()
+mail.init_app(app)
 db.init_app(app)
 login_manager.init_app(app)
+
 app.cli.add_command(create_tables)
 app.cli.add_command(destroy_tables)
 app.cli.add_command(restart_tables)
@@ -25,7 +39,6 @@ app.cli.add_command(restart_tables)
 def length(list):
     return len(list)
 app.jinja_env.globals.update(length=length)
-
 
 def queryempty(q):
     if (type(q) == list):
@@ -61,6 +74,17 @@ def get_random_string():
     letters = string.ascii_lowercase
     result_str = ''.join(random.choice(letters) for i in range(8))
     return result_str
+
+#def send_email(m,code):
+    #msg = Message('Your reservation code is: {}'.format(code),
+    #              sender='iisprojectfestival@gmail.com',
+    #              recipients=[m])
+    #Your code is {}'.format(reservation.code)
+    #time.sleep(2)
+    #mail.send(msg)
+
+        
+    
 
 def fill_database():
     db.session.add(User(name = "aN", surname = "aS", login = "admin", unhashed_password= "admin", priviliges = 3))
@@ -173,7 +197,6 @@ def remove_reservation(code):
 
 @app.route('/buy_tickets/<name>', methods=['GET','POST'])
 #Zatial login required
-@login_required
 def buy_tickets(name):
     festival = Festival.query.filter_by(name=name).first()
     if request.method == "POST":
@@ -181,7 +204,13 @@ def buy_tickets(name):
         # TODO Not enough capacity
         if num > festival.remaining_capacity:
             pass
-        reservation = Reservation(owner = current_user, paid=0, code = get_random_string(), approved = 0)
+        if not current_user.is_authenticated:
+            reservation = Reservation(owner = None, paid=0, code = get_random_string(), approved = 0)
+            #print(request.form["email"])
+            #send_email(request.form["email"],reservation.code)
+        else:
+            reservation = Reservation(owner = current_user, paid=0, code = get_random_string(), approved = 0)
+            
         db.session.add(reservation)
         db.session.commit()
         for _ in range(0,num):
@@ -190,8 +219,17 @@ def buy_tickets(name):
 
         festival.remaining_capacity = festival.remaining_capacity - num
         db.session.commit()
-        return redirect(url_for('reservations'))
+        if not current_user.is_authenticated:
+            return redirect(url_for('unauthenticated_reservation', code = reservation.code))
+        else:
+            return redirect(url_for('reservations'))
     return render_template("buy_tickets.html", festival = festival)
+
+@app.route('/unauthenticated_reservation/<code>')
+def unauthenticated_reservation(code):
+    reservation = Reservation.query.filter_by(code=code).first()
+    return render_template("unauthenticated_reservation.html", reservation=reservation)
+
 
 @app.route('/pay_reservation/<code>')
 @login_required
@@ -203,30 +241,61 @@ def pay_reservation(code):
     db.session.commit()
     return redirect(url_for('reservations'))
 
-@app.route('/reservations')
-#Zatial login required
-@login_required
+@app.route('/reservations', methods=['GET','POST'])
 def reservations():
-    reservations = current_user.reservations
-    return render_template("reservations.html", reservations=reservations, isReservations=True)
+    if (current_user.is_authenticated):
+        reservations = current_user.reservations
+        return render_template("reservations.html", reservations=reservations, isReservations=True)
+    else:
+        if request.method == 'POST':
+            code = request.form["code"]
+            reservation = Reservation.query.filter_by(code = code).first()
+            return render_template("reservations.html", reservation = reservation, isReservations=True)
+        else:
+            return render_template("reservations.html", isReservations=True)
+
     
 
 
 ''' AUTHENTIFICATION '''
 
-@app.route('/register', methods=['GET','POST'])
-def register():
+@app.route('/register/<reservation>', methods=['GET','POST'])
+def register(reservation):
     if request.method == "POST":
         #Register -> Add to database -> Login page
         login = request.form["login"]
         password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
         name = request.form["name"]
         surname = request.form["surname"]
         if (login == "" or password == ""):
-            return render_template("register.html", isReg= True)
-        user = User(name = name, surname = surname, login = login, unhashed_password= password, priviliges = 0)
+            return render_template("register.html", isReg=True)
+        user = User(name=name, surname=surname, login=login, unhashed_password=password, priviliges=0)
+        if bool(user.query.filter_by(login=login).first()):
+            error_message = "The username already exists. Please choose another."
+            context = {
+                'loginExists': True,
+                'firstname' : name,
+                'surnamee' : surname,
+                'isReg' : True
+            }
+            return render_template("register.html", **context)
+        if (password != confirm_password):
+            context = {
+                'passwordsDontMatch': True,
+                'firstname' : name,
+                'surnamee' : surname,
+                'loginn' : login,
+                'isReg' : True
+            }
+            return render_template("register.html", **context)
+            pass
         db.session.add(user)
         db.session.commit()
+        if(reservation != 'new_user'):
+            res = Reservation.query.filter_by(code = reservation).first()
+            res.owner = user
+            db.session.commit()
         return redirect(url_for('login'))
     else:
         #Render register.html
@@ -238,11 +307,16 @@ def login():
         login = request.form["login"]
         password = request.form["password"]
         user = User.query.filter_by(login=login).first()
-        error_message=''
         #Hash
+
         if not user or not check_password_hash(user.password, password):
-            error_message = "Wrong username or password"
-        if not error_message:
+            print("WL")
+            context = {
+                'isLogin' : True,
+                'wrongLogin' : True
+            }
+            return render_template("login.html",**context)
+        else:
             login_user(user)
             session.permanent = True
             return redirect(url_for('home'))
@@ -269,6 +343,7 @@ def profile(login):
 @login_required
 def edit_profile(login):
     if(login != current_user.login):
+        print("woo")
         return redirect(url_for('profile', login = login))
     if request.method == "POST":
         user = User.query.filter_by(login = login).first()
@@ -276,8 +351,34 @@ def edit_profile(login):
             user.name = request.form["name"]
         if (request.form["surname"] != ""):
             user.surname = request.form["surname"]
+        if (request.form["password"] != ""):
+            if (request.form["password"] == request.form["confirm_password"]):
+                user.unhashed_password = request.form["password"]
+            else:
+                context = {
+                    'isProfile':True,
+                    'current_user': current_user,
+                    'isEdit':True,
+                    'passwordsDontMatch': True,
+                    'namee':request.form["name"],
+                    'surnamee':request.form["surname"],
+                    'loginn': request.form["login"]
+                }
+                return render_template("profile.html", **context )
+
         if (request.form["login"] != ""):
-            user.login = request.form["login"]
+            if not bool(User.query.filter_by(login=request.form["login"]).first()):
+                user.login = request.form["login"]
+            else:
+                context = {
+                    'isProfile':True,
+                    'current_user': current_user,
+                    'isEdit':True,
+                    'loginExists': True,
+                    'namee':request.form["name"],
+                    'surnamee':request.form["surname"]
+                }
+                return render_template("profile.html", **context )
         db.session.commit()
         return redirect(url_for('profile', login = current_user.login))
     return render_template("profile.html", isProfile=True, current_user = current_user, isEdit=True)
@@ -297,25 +398,72 @@ def admin():
             user_to_edit_id = request.form['edit_button']
             return render_template("admin.html", user_to_edit_id = user_to_edit_id, users = users, isAdmin=True)
         elif request.form.get("submit_changes"):
-            print(request.form['submit_changes'])
             user_to_edit_id = request.form['submit_changes']
             user = User.query.filter_by(id = int(user_to_edit_id)).first()
             if (request.form["name"] != ""):
                 user.name = request.form["name"]
             if (request.form["surname"] != ""):
-                user.name = request.form["surname"]
+                user.surname = request.form["surname"]
             if (request.form["login"] != ""):
-                user.name = request.form["login"]
+                if not bool(User.query.filter_by(login=request.form["login"]).first()):
+                   user.login = request.form["login"]
             if (request.form["password"] != ""):
                 user.unhashed_password = request.form["password"]
             if (request.form["priviliges"] != ""):
                 user.priviliges = request.form["priviliges"]
             db.session.commit()
-            return render_template("admin.html", user_to_edit_id = -1, users = users, isAdmin=True)
+            context = {
+                'user_to_edit_id': -1,
+                'users' : users,
+                'isAdmin':True
+            }
+            return render_template("admin.html", **context)
 
 
     else:
-        return render_template("admin.html", user_to_edit_id = user_to_edit_id, users = users, isAdmin=True)
+        context = {
+                'user_to_edit_id': -1,
+                'users' : users,
+                'isAdmin':True
+            }
+        return render_template("admin.html", **context)
+
+@app.route('/add_user', methods=['GET','POST'])
+@login_required
+def add_user():
+    invalid_priviliges_check(3)
+    if request.method == 'POST':
+        login = request.form["login"]
+        password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+        name = request.form["name"]
+        surname = request.form["surname"]
+        priviliges = request.form["priviliges"]
+        if (login == "" or password == ""):
+            return render_template("add_user.html")
+        user = User(name=name, surname=surname, login=login, unhashed_password=password, priviliges=int(priviliges))
+        if bool(User.query.filter_by(login=login).first()):
+            error_message = "The username already exists. Please choose another."
+            context = {
+                'loginExists': True,
+                'namee' : name,
+                'surnamee' : surname,
+            }
+            return render_template("add_user.html", **context)
+        if (password != confirm_password):
+            context = {
+                'passwordsDontMatch': True,
+                'namee' : name,
+                'surnamee' : surname,
+                'loginn' : login,
+            }
+            return render_template("add_user.html", **context)
+            pass
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('admin'))
+
+    return render_template("add_user.html")
 
 @app.route('/remove_user/<id>')
 @login_required
@@ -329,15 +477,125 @@ def remove_user(id):
 
 ''' Organizer '''
 
-@app.route('/organizer')
+@app.route('/organizer', methods=['GET', 'POST'])
 @login_required
 def organizer():
     invalid_priviliges_check(2)
     festivals = Festival.query.all()
     interprets = Interpret.query.all()
     stages = Stage.query.all()
+    festival_to_edit_id = -1
+    stage_to_edit_id = -1
+    interpret_to_edit_id = -1
 
-    return render_template("organizer.html", festivals=festivals, interprets = interprets, stages=stages, isOrganizer=True)
+    if request.method == "POST":
+
+        #EDIT FESTIVAL
+        if request.form.get("edit_festival"):
+            festival_to_edit_id = request.form['edit_festival']
+            context = {
+                'festival_to_edit_id':festival_to_edit_id,
+                'festivals':festivals,
+                'isOrganizer':True,
+                'stages':stages,
+                'interprets':interprets
+            }
+            return render_template("organizer.html", **context)
+        
+        #SUBMIT FESTIVAL
+        elif request.form.get("submit_festival"):
+            festival_to_edit_id = request.form['submit_festival']
+            festival = Festival.query.filter_by(id=int(festival_to_edit_id)).first()        
+            
+            if request.form['name'] != "":
+                festival.name = request.form["name"]
+            if request.form['description'] != "":
+                festival.description = request.form['description']
+            if request.form['genre'] != "":
+                festival.genre = request.form['genre']
+            paid_on_spot = request.form.getlist('paid_on_spot')
+            if not paid_on_spot:
+                festival.paid_on_spot = 0
+            else:
+                festival.paid_on_spot = 1
+            if request.form['date_start'] != "":
+                festival.date_start = request.form['date_start']
+            if request.form['date_end'] != "":
+                festival.date_end = request.form['date_end']
+            if request.form['location'] != "":
+                festival.location = request.form['location']
+            if request.form['price'] != "":
+                festival.price = request.form['price']
+            if request.form['max_capacity'] != "":
+                festival.max_capacity = request.form['max_capacity']
+                festival.recalculate_remaining_capacity()
+            db.session.commit()
+            festival_to_edit_id = -1
+        
+        #EDIT STAGE
+        if request.form.get("edit_stage"):
+            stage_to_edit_id = request.form['edit_stage']
+            context = {
+                'stage_to_edit_id':stage_to_edit_id,
+                'festivals':festivals,
+                'isOrganizer':True,
+                'stages':stages,
+                'interprets':interprets
+            }
+            return render_template("organizer.html", **context)
+        #SUBMIT STAGE
+        elif request.form.get("submit_stage"):
+            stage_to_edit_id = request.form['submit_stage']
+            stage = Stage.query.filter_by(id=int(stage_to_edit_id)).first()
+
+            if request.form['name'] != "":
+                stage.name = request.form['name']
+            if request.form['festival_name'] != "":
+                festival = Festival.query.filter_by(id = int(request.form['festival_name'])).first()
+                stage.festival = festival
+            db.session.commit()
+            stage_to_edit_id = -1
+        #EDIT INTERPRET
+        if request.form.get("edit_interpret"):
+            interpret_to_edit_id = request.form['edit_interpret']
+            context = {
+                'interpret_to_edit_id':interpret_to_edit_id,
+                'festivals':festivals,
+                'isOrganizer':True,
+                'stages':stages,
+                'interprets':interprets
+            }
+            return render_template("organizer.html", **context)
+        #SUBMIT INTERPRET
+        elif request.form.get("submit_interpret"):
+            interpret_to_edit_id = request.form['submit_interpret']
+            interpret = Interpret.query.filter_by(id = int(interpret_to_edit_id)).first()
+
+            if request.form['name'] != "":
+                interpret.name = request.form['name']
+            if request.form['members'] != "":
+                interpret.members = request.form['members']
+            if request.form['rating'] != "":
+                interpret.rating = request.form['rating']
+            if request.form['genre'] != "":
+                interpret.rating = request.form['genre']
+
+            db.session.commit()
+            interpret_to_edit_id = -1
+        
+            
+    # DRAW TABLES
+    context = {
+        'interpret_to_edit_id':interpret_to_edit_id,
+        'festival_to_edit_id':festival_to_edit_id,
+        'stage_to_edit_id': stage_to_edit_id,
+        'festivals':festivals,
+        'isOrganizer':True,
+        'stages':stages,
+        'interprets':interprets
+    }
+    
+    return render_template("organizer.html", **context)
 
 @app.route('/add_festival', methods=['GET','POST'])
 @login_required

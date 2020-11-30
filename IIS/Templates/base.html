@@ -18,11 +18,12 @@
                 <li class="nav-item"><a class="nav-link {%if isHome %}active_link{% endif %}" href="{{ url_for('home') }}">Home</a></li>
                   {% if not current_user.is_authenticated %}
                   <li class="nav-item"><a class="nav-link {%if isLogin %}active_link{% endif %}" href="{{ url_for('login') }}">Login</a></li>
-                  <li class="nav-item"><a class="nav-link {%if isReg %}active_link{% endif %}" href="{{ url_for('register') }}">Register</a></li>
+                  <li class="nav-item"><a class="nav-link {%if isReg %}active_link{% endif %}" href="{{ url_for('register', reservation = 'new_user') }}">Register</a></li>
+                  <li class="nav-item"><a class="nav-link {%if isReservations %}active_link{% endif %}" href="{{url_for('reservations')}}">Reservations</a></li>
                   {% endif %}
                   {% if current_user.is_authenticated %}
-                  <li class="nav-item"><a class="nav-link {%if isProfile %}active_link{% endif %}" href="{{url_for('profile', login = current_user.login)}}">Profile</a></li>
                   <li class="nav-item"><a class="nav-link {%if isReservations %}active_link{% endif %}" href="{{url_for('reservations')}}">Reservations</a></li>
+                  <li class="nav-item"><a class="nav-link {%if isProfile %}active_link{% endif %}" href="{{url_for('profile', login = current_user.login)}}">Profile</a></li>
                   {% if current_user.priviliges > 0 %}
                   <li class="nav-item"><a class="nav-link {%if isCashier == True %}active_link{% endif %}" href="{{url_for('cashier')}}">Cashier</a></li>
                   {% endif %}
