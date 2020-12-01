@@ -811,10 +811,8 @@ def create_app():
                 performance_to_edit_id = request.form['submit_performance']
                 performance = Performance.query.filter_by(id=int(performance_to_edit_id)).first()
 
-                if request.form['time_start'] != "":
-                    time_start = request.form['time_start']
-                if request.form['time_end'] != "":
-                    time_end = request.form['time_end']
+                time_start = request.form['time_start']
+                time_end = request.form['time_end']
 
                 if time_start == time_end:
                     context = {
