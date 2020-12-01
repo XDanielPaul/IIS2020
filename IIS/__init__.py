@@ -56,7 +56,7 @@ def create_app():
     app.jinja_env.globals.update(convToStr=convToStr)
 
 
-    from models import User,Festival,Reservation,Ticket,Stage,Interpret, Schedule, Performance, perfs
+    from .models import User,Festival,Reservation,Ticket,Stage,Interpret, Schedule, Performance, perfs
     #fill_database()
 
 
