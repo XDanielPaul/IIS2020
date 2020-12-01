@@ -39,7 +39,7 @@
             </div>
             <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 50vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
                 <div style="margin-top: 10px;">
-                    {{% for stage in festival.stages %}
+                    {% for stage in festival.stages %}
                     <p class="font-weight-bold text-uppercase">Stage: {{stage.name}}</p>
                     {% for schedule in stage.schedules %}
                         <p class="font-weight-bold">{{schedule.day}}</p>
