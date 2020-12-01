@@ -40,11 +40,11 @@ def fill_database():
     #----------
 
     #STAGES
-    s_Pohoda = Stage(name="Orange_stage", festival=f_pohoda, create_schedules=[f_pohoda.date_start, f_pohoda.date_end])
+    s_Pohoda = Stage(name="Orange stage", festival=f_pohoda, create_schedules=[f_pohoda.date_start, f_pohoda.date_end])
     db.session.add(s_Pohoda)
-    s_Urpiner = Stage(name="Urpiner_stage", festival=f_pohoda, create_schedules=[f_pohoda.date_start, f_pohoda.date_end])
+    s_Urpiner = Stage(name="Urpiner stage", festival=f_pohoda, create_schedules=[f_pohoda.date_start, f_pohoda.date_end])
     db.session.add(s_Urpiner)
-    s_Budis = Stage(name="Budis_stage", festival=f_pohoda, create_schedules=[f_pohoda.date_start, f_pohoda.date_end])
+    s_Budis = Stage(name="Budis stage", festival=f_pohoda, create_schedules=[f_pohoda.date_start, f_pohoda.date_end])
     db.session.add(s_Budis)
 
     s_grape = Stage(name="Grape Stage", festival=f_grape, create_schedules=[f_grape.date_start, f_grape.date_end])
