@@ -2,9 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_login import login_user, logout_user, current_user, login_required
 from flask_mail import Mail, Message
 from werkzeug.security import check_password_hash
-from commands import create_tables, destroy_tables, restart_tables, fill_database
-from extensions import db,login_manager
-from settings import *
+from .commands import create_tables, destroy_tables, restart_tables, fill_database
+from .extensions import db,login_manager
+from .settings import *
 from datetime import timedelta, date
 import random, string, time
 
