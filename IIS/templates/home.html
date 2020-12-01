@@ -21,6 +21,7 @@
         </div>
     {% else %}
         {% for festival in festivals %} 
+        {% if length(festival.stages) > 0 %}
         <div class="row">
             <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 50vh; font-size:18px; font-family: monospace;">
                 <div style="margin-top: 10px;">
@@ -53,6 +54,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
         {% endfor %}
     {% endif %}
 
