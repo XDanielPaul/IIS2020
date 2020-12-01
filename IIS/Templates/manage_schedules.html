@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-top: 200px; margin-left: 100px;"></h1>
+
+
+<div class="container" style="color:aliceblue; margin-top: 50px;">
+                
+    <form method="post" action="">
+      <h1>Edit schedule for day:</h1>
+      <select name="edit_schedule" class="form-control" id="interpret_add">
+        {% for schedule in schedules %}
+        <option value="{{schedule.day}}">{{schedule.day}}</option>
+        {% endfor %}
+    </select>
+      <button type="submit" name="edit" value="edit" class="border border-secondary btn btn-secondary" style="margin-top: 10px;background-color: rgb(4, 161, 4);">Edit day</button>
+      <a href="{{url_for('organizer')}}" class="btn btn-primary" style="margin-left: 10px;margin-top:10px; background-color: red;">Cancel</a>
+    </form>
+</div>
+
+
+{% endblock %}

@@ -2,25 +2,30 @@
 
 {%block content%}
 <div class="container" style="color:aliceblue; margin-top: 50px;">
-  <a href="{{url_for('organizer')}}" class="btn btn-primary" style="background-color: red;">Back</a>
                 
-    <form method="post" action="">
-      <label  class="col-sm-2 col-form-label">Stage</label>    
-      <select name="stage" class="form-control" id="stage">
-        {% for stage in stages %}
-        <option value="{{stage.id}}">{{stage.name}}</option>
-        {% endfor %}
-    </select>
-      <label  class="col-sm-2 col-form-label">Interpret</label>    
-      <select name="interpret" class="form-control" id="interpret">
-        {% for interpret in interprets %}
-        <option value="{{interpret.id}}">{{interpret.name}}</option>
-        {% endfor %}
-    </select>
-      <button type="submit" class="border border-secondary btn btn-secondary" style="margin-top: 10px;">Add interpret to stage</button>
-      {% if contains %}
-        <small style="color: red;">Interpret is already on the stage</small>
-        {% endif %}
-    </form>
+  <form method="post" action="">
+    <h1>Add interpret to stage: {{stage.name}}</h1>
+    <label  class="col-sm-2 col-form-label">Interpret</label>    
+    <select name="interpret_add" class="form-control" id="interpret_add">
+      {% for interpret in allowed_interprets %}
+      <option value="{{interpret.id}}">{{interpret.name}}</option>
+      {% endfor %}
+  </select>
+    <button type="submit" name="add" value="add" class="border border-secondary btn btn-secondary" style="margin-top: 10px;background-color: rgb(4, 161, 4);">Add interpret to stage</button>
+    <a href="{{url_for('organizer')}}" class="btn btn-primary" style="margin-left: 10px;margin-top:10px; background-color: red;">Cancel</a>
+  </form>
+
+
+  <form method="post" action="" style="margin-top: 100px;">
+    <h1>Remove interpret from stage: {{stage.name}}</h1>
+    <label  class="col-sm-2 col-form-label">Interpret</label>    
+    <select name="interpret_remove" class="form-control" id="interpret_remove">
+      {% for interpret in included_interprets %}
+      <option value="{{interpret.id}}">{{interpret.name}}</option>
+      {% endfor %}
+  </select>
+    <button type="submit" name="remove" value="remove" class="border border-secondary btn btn-secondary" style="margin-top: 10px;background-color: rgb(4, 161, 4);">Remove interpret from stage</button>
+    <a href="{{url_for('organizer')}}" class="btn btn-primary" style="margin-left: 10px;margin-top:10px; background-color: red;">Cancel</a>
+  </form>
   </div>
 {%endblock%}

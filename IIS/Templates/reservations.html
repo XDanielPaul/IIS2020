@@ -4,12 +4,13 @@
 {% if current_user.is_authenticated %}
     <h1 style="color: aliceblue; margin-left: 17%; margin-top: 40px;">Reservations:</h1>
     {% for reservation in reservations %} 
-    <div class="container border-10 rounded border border-dark" style="background-color: silver; height: 40vh; margin-top: 20px;">
+    <div class="container border-10 rounded border border-dark" style="background-color: silver; height: 45vh; margin-top: 20px;">
         <div class="row">
-            <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 40vh; font-size:18px; font-family: monospace;">
+            <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 45vh; font-size:18px; font-family: monospace;">
                 <div style="margin-top: 10px;">
                     <p class="font-weight-bold text-uppercase">Reservation ID: {{reservation.id}}</p>
                     <p>Festival: {{reservation.tickets_R[0].festival.name}}</p>
+                    <p>Created: {{reservation.date_created}} </p>
                     {% if reservation.tickets_R[0].festival.paid_on_spot == True %}
                     <p>Paid on spot </p>
                     {% else %}
@@ -24,7 +25,7 @@
                     <a class="btn btn-primary" href="{{url_for('remove_reservation', code=reservation.code)}}" style="background-color:red;">Cancel reservation</a>
                 </div>
             </div>
-            <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 40vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
+            <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 45vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
                 <div style="margin-top: 10px;">
                     {% if reservation.approved == 1 %}
                     <p class="font-weight-bold text-uppercase">Tickets:</p>
@@ -48,12 +49,13 @@
         <button class="rounded btn btn-primary" name="search_reservation"  value="search_reservation" type="submit">Search</button>
     </form>
     {% if reservation %}
-        <div class="container border-10 rounded border border-dark" style="background-color: silver; height: 40vh; margin-top: 20px;">
+        <div class="container border-10 rounded border border-dark" style="background-color: silver; height: 45vh; margin-top: 20px;">
         <div class="row">
-            <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 40vh; font-size:18px; font-family: monospace;">
+            <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 45vh; font-size:18px; font-family: monospace;">
                 <div style="margin-top: 10px;">
                     <p class="font-weight-bold text-uppercase">Reservation ID: {{reservation.id}}</p>
                     <p>Festival: {{reservation.tickets_R[0].festival.name}}</p>
+                    <p>Created: {{reservation.date_created}} </p>
                     {% if reservation.tickets_R[0].festival.paid_on_spot == True %}
                     <p>Paid on spot </p>
                     {% else %}
@@ -68,7 +70,7 @@
                     <a class="btn btn-primary" href="{{url_for('remove_reservation', code=reservation.code)}}" style="background-color:red;">Cancel reservation</a>
                 </div>
             </div>
-            <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 40vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
+            <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 45vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
                 <div style="margin-top: 10px;">
                     {% if reservation.approved == 1 %}
                     <p class="font-weight-bold text-uppercase">Tickets:</p>

@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash
 from commands import create_tables, destroy_tables, restart_tables
 from extensions import db,login_manager
 from settings import *
-from datetime import timedelta
+from datetime import timedelta, date
 import random, string, time
 
 #from models import *
@@ -14,6 +14,7 @@ import pymysql
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "SECRET_KEY"
+# SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://cgewkxohwrzbqz:791eb1445e7861448b11c5f17bb7fc7b0041d97958e425c9dc577a002c2c05ee@ec2-3-220-98-137.compute-1.amazonaws.com:5432/d5m38slqf76vdr'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(minutes=30)
@@ -53,7 +54,7 @@ def convToStr(element):
 app.jinja_env.globals.update(convToStr=convToStr)
 
 
-from models import User,Festival,Reservation,Ticket,Stage,Interpret,perfs
+from models import User,Festival,Reservation,Ticket,Stage,Interpret, Schedule, Performance, perfs
 #fill_database()
 
 
@@ -75,6 +76,11 @@ def get_random_string():
     result_str = ''.join(random.choice(letters) for i in range(8))
     return result_str
 
+def is_between(time, time_range):
+    if time_range[1] < time_range[0]:
+        return time > time_range[0] or time < time_range[1]
+    return time_range[0] < time < time_range[1]
+
 #def send_email(m,code):
     #msg = Message('Your reservation code is: {}'.format(code),
     #              sender='iisprojectfestival@gmail.com',
@@ -82,41 +88,6 @@ def get_random_string():
     #Your code is {}'.format(reservation.code)
     #time.sleep(2)
     #mail.send(msg)
-
-        
-    
-
-def fill_database():
-    db.session.add(User(name = "aN", surname = "aS", login = "admin", unhashed_password= "admin", priviliges = 3))
-    db.session.add(User(name = "User's_Name", surname = "User's_Surname", login = "user", unhashed_password= "user", priviliges = 0))
-    db.session.commit()
-    f_pohoda = Festival(name="Pohoda", description="Je to super festival",genre="rock", paid_on_spot = 1, date_start="2020-12-03",date_end="2020-12-04",location="Trenčín",price="30",max_capacity="500",remaining_capacity="500")
-    db.session.add(f_pohoda)
-    f_grape = Festival(name="Grape", description="Je to tiez super festival",genre="metal", paid_on_spot = 0, date_start="2020-12-06",date_end="2020-12-09",location="Piešťany",price="25",max_capacity="1000",remaining_capacity="1000")
-    db.session.add(f_grape)
-    db.session.commit()
-    s_O2 = Stage(name="O2_stage", festival=f_pohoda)
-    db.session.add(s_O2)
-    s_Orange = Stage(name="Orange_stage", festival=f_pohoda)
-    db.session.add(s_Orange)
-    s_Levy = Stage(name="Levy_stage", festival=f_grape)
-    db.session.add(s_Levy)
-    eminem = Interpret(name="Eminem",members="Eminem",rating="10",genre="rap")
-    db.session.add(eminem)
-    abusus = Interpret(name="Abusus",members="Branko Jóbus",rating="10",genre="folk")
-    db.session.add(abusus)
-    elan = Interpret(name="Elán",members="Jožko Vajda",rating="6",genre="pop")
-    db.session.add(elan)
-    nohavica = Interpret(name="Jaromír Nohavica",members="Jaromír Nohavica",rating="10",genre="folk")
-    db.session.add(nohavica)
-    db.session.commit()
-    s_O2.performers.append(eminem)
-    s_O2.performers.append(elan)
-    s_Levy.performers.append(nohavica)
-    s_Levy.performers.append(elan)
-    s_Orange.performers.append(nohavica)
-    s_Orange.performers.append(abusus)
-    db.session.commit()
 
 ''' HOME '''
 
@@ -196,7 +167,6 @@ def remove_reservation(code):
         return redirect(url_for('reservations'))
 
 @app.route('/buy_tickets/<name>', methods=['GET','POST'])
-#Zatial login required
 def buy_tickets(name):
     festival = Festival.query.filter_by(name=name).first()
     if request.method == "POST":
@@ -205,11 +175,11 @@ def buy_tickets(name):
         if num > festival.remaining_capacity:
             pass
         if not current_user.is_authenticated:
-            reservation = Reservation(owner = None, paid=0, code = get_random_string(), approved = 0)
+            reservation = Reservation(owner = None, paid=0, date_created = date.today().strftime("%Y-%m-%d") , code = get_random_string(), approved = 0)
             #print(request.form["email"])
             #send_email(request.form["email"],reservation.code)
         else:
-            reservation = Reservation(owner = current_user, paid=0, code = get_random_string(), approved = 0)
+            reservation = Reservation(owner = current_user, paid=0, date_created = date.today().strftime("%Y-%m-%d"), code = get_random_string(), approved = 0)
             
         db.session.add(reservation)
         db.session.commit()
@@ -268,20 +238,31 @@ def register(reservation):
         confirm_password = request.form["confirm_password"]
         name = request.form["name"]
         surname = request.form["surname"]
-        if (login == "" or password == ""):
-            return render_template("register.html", isReg=True)
-        user = User(name=name, surname=surname, login=login, unhashed_password=password, priviliges=0)
-        if bool(user.query.filter_by(login=login).first()):
+        email = request.form["email"]
+
+        if bool(User.query.filter_by(login=login).first()):
             error_message = "The username already exists. Please choose another."
             context = {
+                'emaill' : email,
                 'loginExists': True,
                 'firstname' : name,
                 'surnamee' : surname,
                 'isReg' : True
             }
             return render_template("register.html", **context)
+        
+        if bool(User.query.filter_by(email=email).first()):
+            context = {
+                'emailExists': True,
+                'firstname' : name,
+                'surnamee' : surname,
+                'isReg' : True
+            }
+            return render_template("register.html", **context)
+
         if (password != confirm_password):
             context = {
+                'emaill' : email,
                 'passwordsDontMatch': True,
                 'firstname' : name,
                 'surnamee' : surname,
@@ -289,7 +270,8 @@ def register(reservation):
                 'isReg' : True
             }
             return render_template("register.html", **context)
-            pass
+        
+        user = User(name=name, surname=surname, login=login, email=email, unhashed_password=password, priviliges=0)
         db.session.add(user)
         db.session.commit()
         if(reservation != 'new_user'):
@@ -310,7 +292,6 @@ def login():
         #Hash
 
         if not user or not check_password_hash(user.password, password):
-            print("WL")
             context = {
                 'isLogin' : True,
                 'wrongLogin' : True
@@ -343,7 +324,6 @@ def profile(login):
 @login_required
 def edit_profile(login):
     if(login != current_user.login):
-        print("woo")
         return redirect(url_for('profile', login = login))
     if request.method == "POST":
         user = User.query.filter_by(login = login).first()
@@ -351,12 +331,27 @@ def edit_profile(login):
             user.name = request.form["name"]
         if (request.form["surname"] != ""):
             user.surname = request.form["surname"]
+        if (request.form["email"] != ""):
+            if not bool(User.query.filter_by(email=request.form["email"]).first()):
+                user.email = request.form["email"]
+            else:
+                context = {
+                    'isProfile':True,
+                    'current_user': current_user,
+                    'isEdit':True,
+                    'passwordsDontMatch': True,
+                    'namee':request.form["name"],
+                    'surnamee':request.form["surname"],
+                    'loginn': request.form["login"]
+                }
+                return render_template("profile.html", **context )
         if (request.form["password"] != ""):
             if (request.form["password"] == request.form["confirm_password"]):
                 user.unhashed_password = request.form["password"]
             else:
                 context = {
                     'isProfile':True,
+                    'emaill': request.form["email"],
                     'current_user': current_user,
                     'isEdit':True,
                     'passwordsDontMatch': True,
@@ -372,6 +367,7 @@ def edit_profile(login):
             else:
                 context = {
                     'isProfile':True,
+                    'emaill': request.form["email"],
                     'current_user': current_user,
                     'isEdit':True,
                     'loginExists': True,
@@ -407,6 +403,9 @@ def admin():
             if (request.form["login"] != ""):
                 if not bool(User.query.filter_by(login=request.form["login"]).first()):
                    user.login = request.form["login"]
+            if (request.form["email"] != ""):
+                if not bool(User.query.filter_by(email=request.form["email"]).first()):
+                   user.email = request.form["email"]
             if (request.form["password"] != ""):
                 user.unhashed_password = request.form["password"]
             if (request.form["priviliges"] != ""):
@@ -438,9 +437,8 @@ def add_user():
         confirm_password = request.form["confirm_password"]
         name = request.form["name"]
         surname = request.form["surname"]
+        email = request.form["email"]
         priviliges = request.form["priviliges"]
-        if (login == "" or password == ""):
-            return render_template("add_user.html")
         user = User(name=name, surname=surname, login=login, unhashed_password=password, priviliges=int(priviliges))
         if bool(User.query.filter_by(login=login).first()):
             error_message = "The username already exists. Please choose another."
@@ -448,6 +446,18 @@ def add_user():
                 'loginExists': True,
                 'namee' : name,
                 'surnamee' : surname,
+                'emaill' : email,
+                'priv' : priviliges
+            }
+            return render_template("add_user.html", **context)
+        if bool(User.query.filter_by(email=email).first()):
+            error_message = "The username with this email already exists."
+            context = {
+                'emailExists': True,
+                'namee' : name,
+                'surnamee': surname,
+                'loginn' : login,
+                'priv' : priviliges
             }
             return render_template("add_user.html", **context)
         if (password != confirm_password):
@@ -456,6 +466,8 @@ def add_user():
                 'namee' : name,
                 'surnamee' : surname,
                 'loginn' : login,
+                'emaill': email,
+                'priv' : priviliges
             }
             return render_template("add_user.html", **context)
             pass
@@ -553,6 +565,7 @@ def organizer():
             if request.form['festival_name'] != "":
                 festival = Festival.query.filter_by(id = int(request.form['festival_name'])).first()
                 stage.festival = festival
+                stage.create_schedules=[festival.date_start, festival.date_end]
             db.session.commit()
             stage_to_edit_id = -1
         #EDIT INTERPRET
@@ -653,7 +666,7 @@ def add_stage():
         if (request.form["festival"] != ""):
             festival_id = request.form["festival"]
         fest = Festival.query.filter_by(id = int(festival_id)).first()
-        stage = Stage(name=name, festival=fest)
+        stage = Stage(name=name, festival=fest, create_schedules=[fest.date_start, fest.date_end])
         db.session.add(stage)
         db.session.commit()
         redirect(url_for('organizer'))
@@ -699,28 +712,165 @@ def remove_interpret(id):
     db.session.commit()
     return redirect(url_for('organizer'))
 
-@app.route('/add_interpret_to_stage',  methods=['GET','POST'])
+@app.route('/add_interpret_to_stage/<name>',  methods=['GET','POST'])
 @login_required
-def add_interpret_to_stage():
+def add_interpret_to_stage(name):
     invalid_priviliges_check(2)
-    stages = Stage.query.all()
+    stage = Stage.query.filter_by(name = name).first()
     interprets = Interpret.query.all()
-    if request.method == "POST":
-        if (request.form["stage"] != ""):
-            stage_id = request.form["stage"]
-        if (request.form["interpret"] != ""):
-            interpret_id = request.form["interpret"]
-        stg = Stage.query.filter_by(id = int(stage_id)).first()
-        interp = Interpret.query.filter_by(id = int(interpret_id)).first()
-        if(interp not in stg.performers):
-            stg.performers.append(interp)
+   
+
+    if request.method == 'POST':
+        if request.form.get("add"):
+            if (request.form["interpret_add"] != ""):
+                interpret_id = request.form["interpret_add"]
+            interp = Interpret.query.filter_by(id = int(interpret_id)).first()
+            stage.performers.append(interp)
             db.session.commit()
+        elif request.form.get("remove"):
+            if (request.form["interpret_remove"] != ""):
+                interpret_id = request.form["interpret_remove"]
+            interp = Interpret.query.filter_by(id = int(interpret_id)).first()
+            stage.performers.remove(interp)
+            db.session.commit()
+
+    allowed_interprets = []
+    included_interprets = []
+    for interpret in interprets:
+        if interpret not in stage.performers:
+            allowed_interprets.append(interpret)
         else:
-            return render_template("add_interpret_to_stage.html", stages=stages, interprets=interprets, contains=True )
-    return render_template("add_interpret_to_stage.html", stages=stages, interprets=interprets )
+            included_interprets.append(interpret)
+
+    context = {
+        'stage':stage,
+        'allowed_interprets':allowed_interprets,
+        'included_interprets':included_interprets
+    }
+    return render_template("add_interpret_to_stage.html", **context )
+
+@app.route('/manage_schedules/<name>', methods = ['GET', 'POST'])
+@login_required       
+def manage_schedules(name):
+    invalid_priviliges_check(2)
+    stage = Stage.query.filter_by(name = name).first()
+    if request.method == 'POST':
+        print(request.form['edit_schedule'])
+        return redirect(url_for('edit_day',name = name,day = request.form['edit_schedule']))
+
+    return render_template('manage_schedules.html', schedules = stage.schedules)
+
+@app.route('/edit_day/<name>/<day>', methods=['GET', 'POST'])
+@login_required
+def edit_day(name,day):
+    invalid_priviliges_check(2)
+    stage = Stage.query.filter_by(name=name).first()
+    schedule = Schedule.query.filter_by(day=day).first()
+    performance_to_edit_id = -1
+   
+    if request.method == 'POST':
+        #ADD PERFORMANCE
+        if request.form.get("add_performance"):
+            time_start = request.form['time_start']
+            time_end = request.form['time_end']
+            interpret_name = request.form['interpret_name']
+            if time_start == time_end:
+                context = {
+                    'stage': stage,
+                    'schedule':schedule,
+                    'timeEq': True
+                }
+                return render_template('edit_day.html', **context)
+            for performance in schedule.performances:
+                if(is_between(time_start, [performance.start, performance.end]) or is_between(time_end, [performance.start, performance.end])):
+                    context = {
+                        'stage': stage,
+                        'schedule':schedule,
+                        'timeCollision': True
+                    }
+                    return render_template('edit_day.html', **context)
+                        
+
+            interpret = Interpret.query.filter_by(name = interpret_name).first()
+            db.session.add(Performance(start = time_start, end = time_end, interpret = interpret, schedule = schedule))
+            db.session.commit()
+            
+
+        elif request.form.get('edit_performance'):
+            performance_to_edit_id = request.form['edit_performance']
+            context = {
+                'performance_to_edit_id': performance_to_edit_id,
+                'stage': stage,
+                'schedule':schedule
+            }
+            return render_template("edit_day.html", **context)
+
+        elif request.form.get('submit_performance'):
+            performance_to_edit_id = request.form['submit_performance']
+            performance = Performance.query.filter_by(id=int(performance_to_edit_id)).first()
+
+            if request.form['time_start'] != "":
+                time_start = request.form['time_start']
+            if request.form['time_end'] != "":
+                time_end = request.form['time_end']
+                
+            if time_start == time_end:
+                context = {
+                    'stage': stage,
+                    'schedule':schedule,
+                    'timeEq': True
+                }
+                return render_template('edit_day.html', **context)
+            for performance in schedule.performances:
+                if(is_between(time_start, [performance.start, performance.end]) or is_between(time_end, [performance.start, performance.end])):
+                    context = {
+                        'stage': stage,
+                        'schedule':schedule,
+                        'timeCollision': True
+                    }
+                    return render_template('edit_day.html', **context)
+            
+            performance.start = request.form['time_start']
+            performance.end = request.form['time_end']
+
+            if request.form['interpret_name'] != "":
+                interpret = Interpret.query.filter_by(name=request.form['interpret_name']).first()
+                performance.interpret = interpret
+
+            db.session.commit()
+            context = {
+                'performace_to_edit_id': -1,
+                'performance': performance,
+                'stage': stage,
+                'schedule': schedule 
+            }
+            
 
         
 
+        else:
+            context = {
+                'stage': stage,
+                'schedule':schedule
+            }
+            return render_template('edit_day.html', **context)
+        
+
+        
+    context = {
+        'stage': stage,
+        'schedule':schedule
+    }
+    return render_template('edit_day.html', **context)
+
+@app.route('/remove_performance/<name>/<day>/<id>')
+@login_required
+def remove_performance(name,day,id):
+    invalid_priviliges_check(2)
+    performance = Performance.query.filter_by(id=int(id)).first()
+    db.session.delete(performance)
+    db.session.commit()
+    return redirect(url_for('edit_day',name = name, day = day))
 
 if __name__ == "__main__":
     app.run(debug=True)

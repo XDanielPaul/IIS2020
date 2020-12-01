@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{%block content%}
+<h1 class="center_color" style="margin-top: 40px;"">Creating schedule for {{stage.name}} at {{schedule.day}}</h1>
+
+<div class="container" style="margin-top: 45px;">
+<form method="post" action="" style="margin-left: 100px;">
+    <div class="form-row" style="position: center;">
+        <input type="time" name="time_start" style="width: 120px; margin: 30px ;" class="form-control" required>
+        <input type="time" name="time_end" style="width: 120px; margin: 30px ;" class="form-control" required>
+        <select name="interpret_name" style="width: 300px; margin: 30px ;" class="form-control" id="interpret" required>
+            {% for performer in stage.performers %}
+            <option value="{{performer.name}}">{{performer.name}}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" name="add_performance" value="add_performance" style="margin: 30px; background-color: rgb(4, 161, 4);" class="btn btn-primary">Add</button>
+        <a href="{{url_for('manage_schedules', name = stage.name)}}" class="btn btn-primary" style="margin: 30px ; background-color: red;">Back</a>
+        {% if timeCollision %}
+            <small style="color: red; margin-left: 30px; font-size: medium;">There was a time collision with this entry</small>
+        {% endif %}
+        {% if timeEq %}
+            <small style="color: red; margin-left: 30px; font-size: medium;">Starting time and ending time are equal.</small>
+        {% endif %}
+    </div>
+  </form>
+</div>
+
+
+<div class="container-flex border-10 rounded border border-dark" style="background-color: rgb(46, 44, 44); overflow-y: scroll; height: 50vh; margin-top: 20px;">
+    <h1 class="display-4 center_color" style="margin-top: 40px;"> Schedule </h1>
+    <table class="admin_user_table" style="margin-bottom: 30px;">
+    <div class="container-flex" style="position: sticky; background-color: rgb(46, 44, 44); position: -webkit-sticky; top:0; z-index: 999;"> 
+      <thead>
+        <tr>
+            <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">Starting</th>
+            <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">Ending</th>
+            <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">Interpret</th>
+            <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">Edit Performance</th>
+            <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">Delete Performance</th>
+        </tr>
+        </thead>    
+    </div>
+    <tbody>
+      {% for performance in schedule.performances %}
+      {% if convToStr(performance_to_edit_id) == convToStr(performance.id) %}
+      <form method="post" action="">
+       <tr>
+         <td><input type="time" style="width: 120px;" name="time_start" value="{{name if name}}" placeholder={{performance.start}}/></td>
+         <td><input type="time" style="width: 120px;" name="time_end" value="{{name if name}}" placeholder={{performance.end}}/></td>
+         <td>
+           <select name="interpret_name" style="width: 130px;" class="form-control" id="interpret_name">
+            {% for performer in stage.performers %}
+                <option value="{{performer.name}}">{{performer.name}}</option>
+            {% endfor %}
+           </select>
+         </td>
+         
+         <td>
+           <button style="width: 80px; margin-bottom:5px; background-color:  rgb(4, 161, 4);" type="submit" name="submit_performance" value="{{performance.id}}" class="btn btn-primary">Submit</button>
+           <a href="{{url_for('edit_day', name = stage.name, day = schedule.day)}}" style="width: 80px; margin-bottom:5px; background-color:  red;" type="cancel" name="cancel_stage" value="{{stage.id}}" class="btn btn-primary">Cancel</button>
+         </td>
+         <td><a href="{{url_for('remove_performance',  name = stage.name, day = schedule.day, id=performance.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+        </tr>
+     </form>
+      {% else %}
+         <tr>
+             <td>{{performance.start}}</td>
+             <td>{{performance.end}}</td>
+             <td>{{performance.interpret.name}}</td>
+             <form method="post" action="">
+               <td>
+                 <button type="submit" class="btn btn-primary" name="edit_performance" value="{{performance.id}}" style="background-color: rgb(4, 161, 4);">Edit</button>
+               </td>
+             </form>
+             <td><a href="{{url_for('remove_performance',  name = stage.name, day = schedule.day, id=performance.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+         </tr>
+       {% endif %}
+       {% endfor %}
+       </tbody>
+    </table>
+  </div>
+
+{%endblock%}

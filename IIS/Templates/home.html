@@ -38,11 +38,16 @@
             </div>
             <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 50vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
                 <div style="margin-top: 10px;">
-                    {% for stage in festival.stages %} 
-                        <p class="font-weight-bold text-uppercase">Stage: {{stage.name}}</p>
-                        <p class="font-weight-bold">Interprets:</p>
-                        {% for performer in stage.performers %} 
-                            <p>{{performer.name}}</p>
+                    {% for i in range(0,length(festival.stages[0].schedules)) %}
+                        <h4 class="font-weight-bold text-uppercase">Day: {{festival.stages[0].schedules[i].day}}</h4>
+                        {% for stage in festival.stages %}
+                            <p class="font-weight-bold">Stage: {{stage.name}}</p>
+
+                            {% for schedule in stage.schedules %}
+                                {% for performerance in schedule.performances %}
+                                    <p>{{performerance.start}}-{{performerance.end}} : {{performerance.interpret.name}} </p>
+                                {% endfor %}
+                            {% endfor %}
                         {% endfor %}
                     {% endfor %}
                 </div>
@@ -87,7 +92,12 @@
                     {% for stage in stages %}
                         {% for performer in stage.performers %}
                             {% if performer.id == interpret.id %}
-                                <p>Festival {{stage.festival.name}}, Stage {{stage.name}}</p>
+                            <p>Festival {{stage.festival.name}}, Stage {{stage.name}}</p>
+                                {% for performance in interpret.performances %}
+                                    {% if performance.schedule.stage.id == stage.id %}
+                                        <p>{{performance.schedule.day}}: {{performance.start}} - {{performance.end}}</p>
+                                    {% endif %}
+                                {% endfor %}                      
                             {% endif %}
                         {% endfor %}
                     {% endfor %}

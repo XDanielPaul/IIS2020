@@ -9,7 +9,7 @@
             <div style="margin-top: 10px; margin-bottom: 10px;">
               <p><strong>Name:</strong> {{viewed_user.name}}</p>
               <p><strong>Surname:</strong> {{viewed_user.surname}}</p>
-              <p><strong>Email:</strong></p>
+              <p><strong>Email:{{viewed_user.email}}</strong></p>
               {%if viewed_user.login == current_user.login%}
               <p><strong>Login:</strong> {{viewed_user.login}}</p>
               {%endif%}
@@ -47,7 +47,7 @@
             <div class="form-group">
               <label class="col-lg-3 control-label" style="color: white;">Email:</label>
               <div class="col-lg-8">
-                <input class="form-control" name="email" type="text" placeholder="Does not work so far...">
+                <input class="form-control" name="email" type="email" {% if not emaill %} value ="{{email if email}}" {% else %} value ="{{emaill}}" {% endif %} placeholder="email@domain">
               </div>
             </div>
             <div class="form-group">

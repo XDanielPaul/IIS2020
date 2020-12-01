@@ -2,61 +2,69 @@
   
 {% block content %}
 
-    <h1 style= "margin-left:700px; margin-top: 20px; color:white">User table</h1>
     
-    <table class="admin_user_table">
-      <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Surname</th>
-            <th>Login</th>
-            <th>Password</th>
-            <th>Privilige</th>
-            <th>Edit User</th>
-            <th>Delete User</th>
-        </tr>
-        </thead>    
-        <tbody>
-         {% for user in users %}
-                {% if convToStr(user_to_edit_id) == convToStr(user.id) %}
-                <form method="post" action="">
-                    <tr>
-                        <td>{{user.id}}</td>
-                        <td><input style="width: 130px;" type="text" name="name" value ="{{name if name}}" placeholder="{{user.name}}"/></td>
-                        <td><input style="width: 130px;" type="text" name="surname" value ="{{surname if surname}}" placeholder="{{user.surname}}"/></td>
-                        <td><input style="width: 130px;" type="text" name="login" value ="{{login if login}}" placeholder="{{user.login}}"/></td>
-                        <td><input style="width: 800px;" type="text" name="password" value ="{{password if password}}" placeholder="{{user.password}}"/></td>
-                        <td><input style="width: 30px;" type="number" name="priviliges" value ="{{priviliges if priviliges}}" placeholder="{{user.priviliges}}" min="0" max="3"/></td>
-                        <td>
-                            <button style="width: 80px; margin-bottom: 5px; background-color: rgb(4, 161, 4);" type="submit" name="submit_changes" value="{{user.id}}" class="btn btn-primary">Submit</button>
-                            <a href="{{url_for('admin')}}"" style="width: 80px; background-color: red;" type="cancel" name="cancel_changes" value="{{user.id}}" class="btn btn-primary">Cancel</button>
-                        </td>
-                        <td><a href="{{url_for('remove_user', id=user.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
-                    </tr>
-                </form>
-                {% else %}    
+    <div class="container-flex border-10 rounded border border-dark" style="background-color: rgb(46, 44, 44); overflow-y: scroll; height: 80vh; margin-top: 20px;">
+        <h1 style= "margin-left:700px; margin-top: 20px; color:white">User table</h1>
+        <table class="admin_user_table" style="margin-bottom: 30px;">
+        <div class="container-flex" style="position: sticky; background-color: rgb(46, 44, 44); position: -webkit-sticky; top:0; z-index: 999;"> 
+            <thead>
                 <tr>
-                    <td>{{user.id}}</td>
-                    <td>{{user.name}}</td>
-                    <td>{{user.surname}}</td>
-                    <td>{{user.login}}</td>
-                    <td>{{user.password}}</td>
-                    <td>{{user.priviliges}}</td>
-                    <form method="post" action="">
-                    <td>
-                        {% if convToStr(user_to_edit_id) == "-1" %}
-                        <button type="submit" name="edit_button" value="{{user.id}}"" class="btn btn-primary" style="background-color: rgb(4, 161, 4);">Edit</button>
-                        {% else %}
-                        -
-                        {% endif %}
-                    </td>
-                    </form>
-                    <td><a href="{{url_for('remove_user', id=user.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                    <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">ID</th>
+                    <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">Name</th>
+                    <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">Surname</th>
+                    <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">Email</th>
+                    <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">Login</th>
+                    <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">Password</th>
+                    <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">Privilige</th>
+                    <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">Edit User</th>
+                    <th style="position: sticky; position: -webkit-sticky; top:0; z-index: 999;">Delete User</th>
                 </tr>
-                {% endif %}
-            {% endfor %}
-        </tbody>
-    </table>
+                </thead>    
+        </div>
+        <tbody>
+            {% for user in users %}
+                   {% if convToStr(user_to_edit_id) == convToStr(user.id) %}
+                   <form method="post" action="">
+                       <tr>
+                           <td>{{user.id}}</td>
+                           <td><input style="width: 130px;" type="text" name="name" value ="{{name if name}}" placeholder="{{user.name}}"/></td>
+                           <td><input style="width: 130px;" type="text" name="surname" value ="{{surname if surname}}" placeholder="{{user.surname}}"/></td>
+                           <td><input style="width: 130px;" type="email" name="email" value ="{{email if email}}" placeholder="{{user.email}}"/></td>
+                           <td><input style="width: 130px;" type="text" name="login" value ="{{login if login}}" placeholder="{{user.login}}"/></td>
+                           <td><input style="width: 800px;" type="text" name="password" value ="{{password if password}}" placeholder="{{user.password}}"/></td>
+                           <td><input style="width: 30px;" type="number" name="priviliges" value ="{{priviliges if priviliges}}" placeholder="{{user.priviliges}}" min="0" max="3"/></td>
+                           <td>
+                               <button style="width: 80px; margin-bottom: 5px; background-color: rgb(4, 161, 4);" type="submit" name="submit_changes" value="{{user.id}}" class="btn btn-primary">Submit</button>
+                               <a href="{{url_for('admin')}}"" style="width: 80px; background-color: red;" type="cancel" name="cancel_changes" value="{{user.id}}" class="btn btn-primary">Cancel</button>
+                           </td>
+                           <td><a href="{{url_for('remove_user', id=user.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                       </tr>
+                   </form>
+                   {% else %}    
+                   <tr>
+                       <td>{{user.id}}</td>
+                       <td>{{user.name}}</td>
+                       <td>{{user.surname}}</td>
+                       <td>{{user.email}}</tfd>
+                       <td>{{user.login}}</td>
+                       <td>{{user.password}}</td>
+                       <td>{{user.priviliges}}</td>
+                       <form method="post" action="">
+                       <td>
+                           {% if convToStr(user_to_edit_id) == "-1" %}
+                           <button type="submit" name="edit_button" value="{{user.id}}"" class="btn btn-primary" style="background-color: rgb(4, 161, 4);">Edit</button>
+                           {% else %}
+                           -
+                           {% endif %}
+                       </td>
+                       </form>
+                       <td><a href="{{url_for('remove_user', id=user.id)}}" class="btn btn-primary" style="background-color: red;">Delete</a></td>
+                   </tr>
+                   {% endif %}
+               {% endfor %}
+           </tbody>
+       </table>
+    </div>
+       
     <a href="{{url_for('add_user')}}" class="btn btn-primary center_but" style="background-color: rgb(4, 161, 4);">Add user</a>
     {% endblock %}

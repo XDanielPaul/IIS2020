@@ -10,25 +10,26 @@
       }
    }
    </script>-->
-
-   <form id="form" class="box" method="post" action="" onSubmit="return checkPassword(this)">
+   <form id="form" class="box" method="post" action="" style="margin-top: 30px;" onSubmit="return checkPassword(this)">
       <h1>Create an account</h1>
       <small style= "margin-left: 10px; color: orange;">Required fields are marked with * </small>
       {% if loginExists %}
       <small style="color: red;">User with entered login already exists.</small>
+      {% endif %}
+      {% if emailExists %}
+      <small style="color: red;">User with entered email already exists.</small>
       {% endif %}
       {% if passwordsDontMatch %}
       <small style="color: red;">Passwords don't match.</small>
       {% endif %}
       <input type="text" name="name" {% if not firstname %} value ="{{name if name}}" {% else %} value ="{{firstname}}" {% endif %} placeholder="First name"/>
       <input type="text" name="surname" {% if not surnamee %} value ="{{surname if surname}}" {% else %} value ="{{surnamee}}" {% endif %} placeholder="Surname"/>
-      <input type="text" name="login" {% if not loginn %} value ="{{surname if surname}}" {% else %} value ="{{loginn}}" {% endif %} placeholder="Login*" required/>
-      
+      <input type="email" name="email" {% if not emaill %} value ="{{email if email}}" {% else %} value ="{{emaill}}" {% endif %} placeholder="E-mail*" required/>
+      <input type="text" name="login" {% if not loginn %} value ="{{login if login}}" {% else %} value ="{{loginn}}" {% endif %} placeholder="Login*" required/>
       <input type="password" name="password" value ="{{password if password}}" placeholder="Password*" required/>
       <input type="password" name="confirm_password" value ="{{password if password}}" placeholder="Confirm Password*" required/>
       <button class="green-button" type="submit">Register</button>
       <a class="out_form red-button" style="width: 130px; " href="{{url_for('login')}}" >Login</button>
 
       </form>
-
 {%endblock%}

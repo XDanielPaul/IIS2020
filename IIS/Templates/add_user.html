@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {%block content%}
-<div class="container" style="transform: translate(0%, 10%);">
+<div class="container" style="transform: translate(0%, 8%);">
     <div class="row" style="height: 100%;">
     <hr>
       <div class="col-md-9 personal-info">
@@ -11,50 +11,50 @@
           <div class="form-group">
             <label class="col-lg-3 control-label" style="color: white;">Name:</label>
             <div class="col-lg-8">
-              <input class="form-control" name="name" type="text" {% if not namee %} value ="{{name if name}}" {% else %} value ="{{namee}}" {% endif %} >
+              <input class="form-control" name="name" type="text" {% if not namee %} value ="{{name if name}}" {% else %} value ="{{namee}}" {% endif %}/>
             </div>
           </div>
           <div class="form-group">
             <label class="col-lg-3 control-label" style="color: white;">Surname:</label>
             <div class="col-lg-8">
-              <input class="form-control" name="surname" type="text" {% if not surnamee %} value ="{{name if name}}" {% else %} value ="{{surnamee}}" {% endif %} >
+              <input class="form-control" name="surname" type="text" {% if not surnamee %} value ="{{name if name}}" {% else %} value ="{{surnamee}}" {% endif %}/>
             </div>
           </div>
           <div class="form-group">
             <label class="col-lg-3 control-label" style="color: white;">Email:</label>
             <div class="col-lg-8">
-              <input class="form-control" name="email" type="text" placeholder="Does not work so far...">
+              <input class="form-control" name="email" type="email" {% if not emaill %} value ="{{email if email}}" {% else %} value ="{{emaill}}" {% endif %} required/>
             </div>
           </div>
           <div class="form-group">
             <label class="col-md-3 control-label" style="color: white;">Login:</label>
             <div class="col-md-8">
-              <input class="form-control" name="login" type="text" {% if not loginn %} value ="{{name if name}}" {% else %} value ="{{loginn}}" {% endif %} required >
+              <input class="form-control" name="login" type="text" {% if not loginn %} value ="{{login if login}}" {% else %} value ="{{loginn}}" {% endif %} required/>
             </div>
           </div>
           <div class="form-group">
             <label class="col-md-3 control-label" style="color: white;">Password:</label>
             <div class="col-md-8">
-              <input class="form-control" name="password" type="password" value="{{password if password}}" required>
+              <input class="form-control" name="password" type="password" value="{{password if password}}" required/>
             </div>
           </div>
           <div class="form-group">
             <label class="col-md-3 control-label" style="color: white;">Confirm password:</label>
             <div class="col-md-8">
-              <input class="form-control" name="confirm_password" type="password" value="{{password if password}}" required>
+              <input class="form-control" name="confirm_password" type="password" value="{{password if password}}" required/>
             </div>
           </div>
           <div class="form-group">
             <label class="col-md-3 control-label" style="color: white;">Priviliges</label>
             <div class="col-md-8">
-              <input class="form-control" style="width:70px" name="priviliges" type="number" value="{{priviliges if priviliges}}" min="0" max="3" required>
+              <input class="form-control" style="width:70px" name="priviliges" type="number" {% if not priv %} value ="{{login if login}}" {% else %} value ="{{priv}}" {% endif %} min="0" max="3" required/>
             </div>
           </div>
           <div class="form-group">
             <label class="col-md-3 control-label"></label>
             <div class="col-md-8">
               
-              <button type="submit" class="btn btn-primary">Create User</button> 
+              <button type="submit" style="background-color:  rgb(4, 161, 4);" class="btn btn-primary">Create User</button> 
               <span></span>
               <a href="{{url_for('admin')}}" type="button" class="btn btn-primary" style="background-color: red;">Cancel</a>
             </div>
@@ -63,6 +63,9 @@
               {% endif %}
               {% if passwordsDontMatch %}
               <small style="color: red; margin-left: 15px;">Entered passwords don't match.</small>
+              {% endif %}
+              {% if emailExists %}
+              <small style="color: red; margin-left: 15px;">Entered email already exists.</small>
               {% endif %}
           </div>
         </form>

@@ -2,17 +2,17 @@
 
 {%block content%}
 <div class="container" style="color:aliceblue; margin-top: 50px;">
-  <a href="{{url_for('organizer')}}" class="btn btn-primary" style="background-color: red;">Back</a>
                 
     <form method="post" action="" name="Interpret">
       <label  class="col-sm-2 col-form-label required">Name:</label>    
-      <input type="text" class="form-control emph" name="name" value ="{{name if name}}" placeholder="Interpret name"/>
+      <input type="text" class="form-control emph" name="name" oninvalid="this.setCustomValidity('Enter interpret name')" oninput="this.setCustomValidity('')" value ="{{name if name}}" placeholder="Interpret name" required/>
       <label  class="col-sm-2 col-form-label">Members:</label>    
       <textarea type="text" class="form-control" name="members" value ="{{members if members}}" placeholder="Members of interpret"></textarea>
       <label  class="col-sm-2 col-form-label required">Rating:</label>
-      <input type="text" class="form-control  emph" name="rating" value ="{{rating if rating}}" placeholder="Rating"/>
+      <input type="number" class="form-control  emph" name="rating" min="0" max="10" oninvalid="this.setCustomValidity('Enter rating')" oninput="this.setCustomValidity('')" value ="{{rating if rating}}" placeholder="Rating" required/>
       <label  class="col-sm-2 col-form-label required">Genre:</label>
-      <select name="genre" class="form-control" id="genre">
+      <select name="genre" class="form-control" id="genre" oninvalid="this.setCustomValidity('Choose genre')" oninput="this.setCustomValidity('')" required>
+          <option value=""></option>
           <option value="blues">Blues</option>
           <option value="country">Country</option>
           <option value="dubstep">Dubstep</option>
@@ -27,7 +27,10 @@
           <option value="rock">Rock</option>
           <option value="techno">Techno</option>
       </select>
-      <button type="submit" class="border border-secondary btn btn-secondary" style="margin-top: 10px;" onclick="return validateInterpret()">Add interpret</button>
+      <button type="submit" class="border border-secondary btn btn-secondary" style="background-color:  rgb(4, 161, 4); margin-top: 10px;">Add interpret</button>
+      <a href="{{url_for('organizer')}}" class="btn btn-primary" style="background-color: red; margin-top: 10px;">Cancel</a>
+
     </form>
+
   </div>
 {%endblock%}

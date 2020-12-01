@@ -1,17 +1,50 @@
 {% extends "base.html" %}
 
 {%block content%}
+<script>
+  function getDate() {
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth() + 1; // January is 0
+    var yyyy = today.getFullYear();
+  
+    if(dd < 10){
+        dd = '0' + dd
+    } 
+  
+    if(mm < 10){
+        mm = '0' + mm
+    } 
+  
+    today = yyyy + '-' + mm + '-' + dd;
+    document.getElementById("date_start").min = today;
+    document.getElementById("date_end").min = today;
+  }
+  
+  window.onload = function() {
+    getDate();
+  };
+
+  function validateDate(){
+    const start = new Date(document.forms["Form"]["date_start"].value);
+    const end = new Date(document.forms["Form"]["date_end"].value);
+    if(start > end){
+      alert("Illegal date interval!");
+      return false;
+    }
+  }
+</script>
 
 <div class="container" style="color:aliceblue; margin-top: 50px;">
-  <a href="{{url_for('organizer')}}" class="btn btn-primary" style="background-color: red;">Back</a>
                 
     <form method="post" action="" name="Form">
       <label  class="col-sm-2 col-form-label required">Name:</label>    
-      <input type="text" class="form-control emph" name="name" value ="{{name if name}}" placeholder="Festival name"/>
+      <input type="text" class="form-control emph" oninvalid="this.setCustomValidity('Enter festival name')" oninput="this.setCustomValidity('')" name="name" value ="{{name if name}}" placeholder="Festival name" required/>
       <label  class="col-sm-2 col-form-label">Description:</label>    
       <textarea type="text" class="form-control" name="description" value ="{{description if description}}" placeholder="Something about festival..."></textarea>
       <label  class="col-sm-2 col-form-label required" required>Genre:</label>
-      <select name="genre" class="form-control" id="genre">
+      <select name="genre" class="form-control" id="genre" oninvalid="this.setCustomValidity('Choose genre')" oninput="this.setCustomValidity('')" required>
+          <option value=""></option>
           <option value="blues">Blues</option>
           <option value="country">Country</option>
           <option value="dubstep">Dubstep</option>
@@ -26,19 +59,23 @@
           <option value="rock">Rock</option>
           <option value="techno">Techno</option>
       </select>
-      <label  class="col-sm-2 col-form-label required">Paid on spot</label>
+      <label  class="col-sm-2 col-form-label required">Paid on spot:</label>
       <input type="checkbox" class="form-control  emph" name="paid_on_spot" id="paid_on_spot" value ="True"/>
       <label  class="col-sm-2 col-form-label required">Date start:</label>
-      <input type="date" class="form-control  emph" name="date_start" id="date_start" value ="{{date_start if date_start}}" max="2030-12-31"/>
+      <input type="date" class="form-control  emph" name="date_start" id="date_start" oninvalid="this.setCustomValidity('Select date start')" oninput="this.setCustomValidity('')" value ="{{date_start if date_start}}" max="2030-12-31" required/>
       <label  class="col-sm-2 col-form-label required">Date end:</label>
-      <input type="date" class="form-control  emph" name="date_end" id="date_end" value ="{{date_end if date_end}}" max="2030-12-31"/>
+      <input type="date" class="form-control  emph" name="date_end" id="date_end" oninvalid="this.setCustomValidity('Select date end')" oninput="this.setCustomValidity('')" value ="{{date_end if date_end}}" max="2030-12-31" required/>
       <label  class="col-sm-2 col-form-label required">Location:</label>
-      <input type="text" class="form-control  emph" name="location" value ="{{location if location}}" placeholder="Festival location"/>
+      <input type="text" class="form-control  emph" name="location" value ="{{location if location}}" oninvalid="this.setCustomValidity('Enter location')" oninput="this.setCustomValidity('')" placeholder="Festival location" required/>
       <label  class="col-sm-2 col-form-label required">Price:</label>
-      <input type="text" class="form-control  emph" name="price" id="price" value ="{{price if price}}" placeholder="€"/>
+      <input type="number" class="form-control  emph" name="price" id="price" value ="{{price if price}}" oninvalid="this.setCustomValidity('Enter price')" oninput="this.setCustomValidity('')" min="1" placeholder="€" required/>
       <label  class="col-sm-2 col-form-label required">Max capacity:</label>
-      <input type="text" class="form-control  emph" name="max_capacity" id="max_capacity" value ="{{max_capacity if max_capacity}}"/>
-      <button type="submit" class="border border-secondary btn btn-secondary" style="margin-top: 10px;" onclick="return validateForm()">Add festival</button>
+      <input type="number" style="margin-bottom: 30px;" class="form-control  emph" name="max_capacity" id="max_capacity" oninvalid="this.setCustomValidity('Enter max capacity')" oninput="this.setCustomValidity('')" value ="{{max_capacity if max_capacity}}" min="1" required/>
+      <div class="wrapper">
+        <button type="submit" class="border border-secondary btn btn-secondary" style="background-color:  rgb(4, 161, 4);" onclick="return validateDate();">Add festival</button>
+        <a href="{{url_for('organizer')}}" class="btn btn-primary" style="background-color: red;">Cancel</a>
+
+      </div>
     </form>
   </div>
 {%endblock%}
