@@ -15,7 +15,6 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(60))
     surname = db.Column(db.String(60))
-    # New
     email = db.Column(db.String(40), unique = True)
     login = db.Column(db.String(20), unique = True)
     password = db.Column(db.String(100))
@@ -35,7 +34,6 @@ class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     code = db.Column(db.String(8))
     paid = db.Column(db.Integer)
-    #NEW
     date_created = db.Column(db.String(10))
     approved = db.Column(db.Integer)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -56,7 +54,6 @@ class Festival(db.Model):
     paid_on_spot = db.Column(db.Integer)
     date_start = db.Column(db.String(10))
     date_end = db.Column(db.String(10))
-    #Rozpis
     location = db.Column(db.String(40))
     price = db.Column(db.Integer)
     max_capacity = db.Column(db.Integer)
@@ -72,7 +69,6 @@ class Stage(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(60))
     festival_id = db.Column(db.Integer, db.ForeignKey('festival.id'))
-    #NEW
     schedules = db.relationship('Schedule', backref='stage')
 
     @property
@@ -105,16 +101,14 @@ class Interpret(db.Model):
     rating = db.Column(db.Integer)
     genre = db.Column(db.String(30))
     stages = db.relationship('Stage', secondary=perfs, backref=db.backref('performers', lazy='dynamic'))
-    #NEW
     performances = db.relationship('Performance', backref='interpret')
 
-#NEW
 class Schedule(db.Model):
    id = db.Column(db.Integer, primary_key = True)
    day = db.Column(db.String(10))
    performances = db.relationship('Performance', backref='schedule')
    stage_id = db.Column(db.Integer, db.ForeignKey('stage.id'))
-#NEW
+
 class Performance(db.Model):
    id = db.Column(db.Integer, primary_key = True)
    start = db.Column(db.String(5))

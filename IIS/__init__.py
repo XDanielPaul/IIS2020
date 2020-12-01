@@ -885,10 +885,6 @@ def create_app():
 
     return app
 
-    @app.route('/test')
-    def test():
-        stage = Stage.query.filter_by(name="Orange_stage").first()
-        return render_template("test.html", stage=stage)
 
 
 if __name__ == "__main__":

@@ -39,18 +39,15 @@
             </div>
             <div class="col border-10 rounded border border-dark" style="background-color: rgb(62, 154, 197); height: 50vh; font-size:18px; font-family: monospace; overflow-y:scroll;">
                 <div style="margin-top: 10px;">
-                    {% for i in range(0,length(festival.stages[0].schedules)) %}
-                        <h4 class="font-weight-bold text-uppercase">Day: {{festival.stages[0].schedules[i].day}}</h4>
-                        {% for stage in festival.stages %}
-                            <p class="font-weight-bold">Stage: {{stage.name}}</p>
-
-                            {% for schedule in stage.schedules %}
-                                {% for performerance in schedule.performances %}
-                                    <p>{{performerance.start}}-{{performerance.end}} : {{performerance.interpret.name}} </p>
-                                {% endfor %}
-                            {% endfor %}
-                        {% endfor %}
-                    {% endfor %}
+                    {{% for stage in festival.stages %}
+                    <p class="font-weight-bold text-uppercase">Stage: {{stage.name}}</p>
+                    {% for schedule in stage.schedules %}
+                        <p class="font-weight-bold">{{schedule.day}}</p>
+                        {% for performance in schedule.performances %}
+                            <p>{{performance.start}}-{{performance.end}} : {{performance.interpret.name}} </p>
+                        {% endfor %}    
+                    {% endfor %}    
+                {% endfor %}
                 </div>
             </div>
         </div>
