@@ -1,8 +1,7 @@
 import click
 from flask.cli import with_appcontext
-from models import User,Festival,Reservation,Ticket,Stage,Interpret, Schedule, Performance, perfs
-
-from extensions import db
+from .models import User,Festival,Reservation,Ticket,Stage,Interpret, Schedule, Performance, perfs
+from .extensions import db
 
 @click.command(name='create_tables')
 @with_appcontext
