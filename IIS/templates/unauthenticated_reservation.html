@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col border-10 rounded border border-dark" style="background-color: rgb(84, 144, 240); height: 20vh; font-size:18px; font-family: monospace;">
             <div style="margin-top: 10px;">
-                <p class="font-weight-bold text-uppercase">You will need to remember this code or create an account to keep track of your reservation.</p>
+                <p class="font-weight-bold text-uppercase">Reservation code has been sent to your email. You can link your reservation with account if you register.</p>
                 <a class="font-weight-bold" style="color: red; font-size: 30px;">{{reservation.code}}</a>
             </div>
             <a style="margin-top: 20px; background-color:rgb(4, 161, 4)" class="btn btn-primary" href="{{url_for('register', reservation = reservation.code)}}">Register</a>
