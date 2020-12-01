@@ -658,6 +658,13 @@ def create_app():
     def remove_festival(id):
         invalid_priviliges_check(2)
         festival = Festival.query.filter_by(id=int(id)).first()
+        reservations = []
+        for ticket in festival.tickets_F:
+            if ticket.reservation not in reservations:
+                reservations.append(ticket.reservation)
+
+        for reservation in reservations:
+            db.session.delete(reservation)
         db.session.delete(festival)
         db.session.commit()
         return redirect(url_for('organizer'))
