@@ -18,7 +18,7 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = "SECRET_KEY"
     # SQLALCHEMY_DATABASE_URI
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://cgewkxohwrzbqz:791eb1445e7861448b11c5f17bb7fc7b0041d97958e425c9dc577a002c2c05ee@ec2-3-220-98-137.compute-1.amazonaws.com:5432/d5m38slqf76vdr'
+    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI #'postgres://cgewkxohwrzbqz:791eb1445e7861448b11c5f17bb7fc7b0041d97958e425c9dc577a002c2c05ee@ec2-3-220-98-137.compute-1.amazonaws.com:5432/d5m38slqf76vdr'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -177,13 +177,11 @@ def create_app():
         festival = Festival.query.filter_by(name=name).first()
         if request.method == "POST":
             num = int(request.form["num"])
-            # TODO Not enough capacity
             if num > festival.remaining_capacity:
                 return render_template("buy_tickets.html", festival=festival)
             if not current_user.is_authenticated:
                 reservation = Reservation(owner=None, paid=0, date_created=date.today(
                 ).strftime("%Y-%m-%d"), code=get_random_string(), approved=0)
-                # print(request.form["email"])
                 send_email(request.form["email"], reservation.code)
             else:
                 reservation = Reservation(owner=current_user, paid=0, date_created=date.today(
