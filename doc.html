@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>Projekt IIS</title>
+    <style type="text/css">
+    	table { border-collapse: collapse; }
+    	td, th { border: 1px solid black; padding: 0.3em 0.5em; text-align: left; }
+    	dt { font-weight: bold; margin-top: 0.5em; }
+    </style>
+</head>
+<body>
+
+<!-- Zkontrolujte prosím nastavení kódování v hlavičce dokumentu 
+     podle použitého editoru -->
+
+<h1>Festival: rezervácia vstupeniek na hudobné festivaly</h1> <!-- Nahradte názvem svého zadání -->
+
+<dl>
+	<dt>Autori</dt>
+	<dd>Daniel Paul <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+	    <a href="mailto:xpauld00@stud.fit.vutbr.cz">xpauld00@stud.fit.vutbr.cz</a> - Návrh databázy, vytváranie databázy, routovanie, backend
+	</dd>
+	<dd>Peter Koprda <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+	    <a href="mailto:xkoprd00@stud.fit.vutbr.cz">xkoprd00@stud.fit.vutbr.cz</a> - Návrh databázy, ošetrovanie vstupov, frontend, editovanie tabuliek
+	</dd>
+	<dt>URL aplikace</dt>
+	<dd><a href="https://iis-festival.herokuapp.com">https://iis-festival.herokuapp.com</a></dd>
+</dl>
+
+<h2>Užívatelia systému pre testovanie</h2>
+<table>
+<tr><th>Login</th><th>Heslo</th><th>Rola</th></tr>
+<tr><td>admin</td><td>admin</td><td>Administrátor</td></tr>
+<tr><td>organizer</td><td>organizer</td><td>Usporiadateľ</td></tr>
+<tr><td>cashier</td><td>cashier</td><td>Pokladník</td></tr>
+<tr><td>user</td><td>user</td><td>Divák</td></tr>
+<tr><td></td><td></td><td>Neregistrovaný užívateľ</td></tr>
+</table>
+
+
+<h2>Implementácia</h2>
+<p>
+	<strong>app.py: Backend</strong>
+	<ul>
+		<li>home() - Zobrazenie, filtrovanie festivalov, interpretov</li>
+		<li>cashier() - Zobrazenie rezervácií </li>
+		<li>approve_resevation() - Potvrdenie rezervácie pokladníkom</li>
+		<li>remove_resevation() - Odstránenie rezervácie pokladníkom</li>
+		<li>buy_tickets() - Vytvorenie rezervácie a lístkov </li>
+		<li>unauthenticated_reservation() - Zobrazenie rezervácie nezaregistrovanému divákovi</li>
+		<li>pay_reservation() - Zaplatenie rezervácie </li>
+		<li>reservations() - Zobrazenie rezervácií užívateľom </li>
+		<li>register() - Registrácia užívateľa </li>
+		<li>login() - Prihlásenie užívateľa </li>
+		<li>logout() - Odhlásenie užívateľa </li>
+		<li>profile() - Zobrazenie profilu užívateľa </li>
+		<li>edit_profile() - Editácia profilu užívateľa </li>
+		<li>admin() - Zobrazenie tabulky užívateľov + editácia </li>
+		<li>add_user() - Pridanie užívateľa do databázy adminom </li>
+		<li>remove_user() - Odstránenie užívateľa z databázy adminom </li>
+		<li>organizer() - Zobrazenie tabuliek festivalov, pódií a interpretov + editácia </li>
+		<li>add_festival() - Pridanie festivalu do databázy usporiadateľom </li>
+		<li>remove_festival() - Odstránenie festivalu z databázy usporiadateľom </li>
+		<li>add_stage() - Pridanie pódia z databázy usporiadateľom </li>
+		<li>remove_stage() - Odstránenie pódia z databázy usporiadateľom</li>
+		<li>add_interpret() - Pridanie interpreta do databázy usporiadateľom</li>
+		<li>remove_interpret() - Odstránenie interpreta z databázy usporiadateľom</li>
+		<li>add_interpret_to_stage() - Pridávanie interpreta na pódium usporiadateľom</li>
+		<li>manage_schedules() - Editovanie rozpisu usporiadateľom</li>
+		<li>edit_day() - Pridávanie a editovanie rozpisu festivalu usporiadateľom</li>
+		<li>remove_performance() - Odstránenie vystúpenia</li>
+	</ul>
+	<strong>extensions.py - deklarácia rozšírení frameworku </strong></br>
+	<strong>models.py: deklarácia databázových modelov</strong></br>
+	<ul>
+		<li>class User(UserMixin, db.Model) - Užívateľ (unhashed_password - hashovanie hesla) </li>
+		<li>class Reservation(db.Model) - Rezervácia </li>
+		<li>class Ticket(db.Model) - Lístok festivalu </li>
+		<li>class Festival(db.Model) - Festival (recalculate_remaining_capacity - vypočítanie zostávajúcej kapacity lístkov) </li>
+		<li>class Stage(db.Model) - Pódium (create_schedules - vytvorí rozpisy pre pódium na základe toho, aký je dátumový rozsah festivalu) </li>
+		<li>class Interpret(db.Model) - Interpret </li>
+		<li>class Schedule(db.Model) - Rozpis </li>
+		<li>class Performance(db.Model) - Vystúpenie </li>
+
+	</ul>
+	<strong>settings.py: nastavenie konfigurácie backendu</strong></br>
+</p>
+
+<h3>Databáza</h3>
+
+<img src="er.png" alt="ER diagram">
+
+<h2>Inštalácia</h2>
+<p>LocalHost:</p>
+<ul>
+<li>Prerekvizity: pip (verzia 20.2.4 a vyššie) a python (verzia 3.7.4 a vyššie)</li>
+<li>Presuniete sa do adresáru "IIS"</li>
+<li>Dependencie stiahnete príkazom "pip install -r requirements.txt"</li>
+<li>Aplikáciu spustíte príkazom "python app.py" a ukončíte "CTRL+C"</li>
+<li>Databáza sa dá zresetovať príkazom v termináli "flask restart_tables" (príkaz treba spustiť v adresári "IIS") </li>
+<li>Databázu naplníte základnými dátami príkazom v termináli "flask fill_database" (príkaz treba spustiť v adresári "IIS") </li>
+<li>Databázu naplníte iba adminom (čerstvý informačný systém) príkazom v termináli "flask only_admin" (príkaz treba spustiť v adresári "IIS") </li>
+</ul>
+
+</body>
+</html>
