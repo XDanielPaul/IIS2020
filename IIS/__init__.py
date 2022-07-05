@@ -18,7 +18,7 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = "SECRET_KEY"
     # SQLALCHEMY_DATABASE_URI
-    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI #'postgres://cgewkxohwrzbqz:791eb1445e7861448b11c5f17bb7fc7b0041d97958e425c9dc577a002c2c05ee@ec2-3-220-98-137.compute-1.amazonaws.com:5432/d5m38slqf76vdr'
+    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
